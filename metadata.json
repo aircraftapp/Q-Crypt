@@ -1,0 +1,6 @@
+{
+  "name": "Quantum Messenger (Q-CRYPT)",
+  "description": "High-security marketing landing page & portal for Quantum Messenger (Q-CRYPT) post-quantum encrypted Android messaging app.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

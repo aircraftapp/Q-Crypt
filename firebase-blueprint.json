@@ -1,0 +1,135 @@
+{
+  "entities": {
+    "EnterpriseTrialRequest": {
+      "title": "Enterprise Trial Request & Security SLA Lead",
+      "description": "Stores enterprise trial requests, seat counts, compliance specifications, and requested SLA terms for the Q-CRYPT CRM.",
+      "type": "object",
+      "properties": {
+        "enterpriseName": {
+          "type": "string",
+          "description": "Name of the requesting enterprise or organization"
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "Primary email address of the enterprise contact/CISO"
+        },
+        "seats": {
+          "type": "number",
+          "description": "Number of seats requested for the PoC deployment"
+        },
+        "complianceNeeds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Selected compliance frameworks (e.g. NIST-FIPS-203, HIPAA, FedRAMP, SOC2-TYPE-II)"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional deployment or integration notes"
+        },
+        "requestedSla": {
+          "type": "string",
+          "description": "Level of requested Security SLA (e.g., Enterprise 24/7 Priority SLA)"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING_REVIEW", "SLA_APPROVED", "IN_PROGRESS", "PROVISIONED", "CLOSED"],
+          "description": "Current status in the enterprise CRM workflow"
+        },
+        "licenseId": {
+          "type": "string",
+          "description": "Generated unique PoC license key ID"
+        },
+        "submittedAt": {
+          "type": "string",
+          "description": "ISO timestamp of form submission"
+        }
+      },
+      "required": ["enterpriseName", "contactEmail", "seats", "submittedAt"]
+    },
+    "ApkDownloadRequest": {
+      "title": "APK Download Access Request",
+      "description": "Stores user registration and CRM requests for APK download link dispatch by Admin.",
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "description": "Name of the user"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address for receiving APK download link"
+        },
+        "organization": {
+          "type": "string",
+          "description": "Company, agency or security organization"
+        },
+        "osPlatform": {
+          "type": "string",
+          "description": "Target mobile operating system (e.g., GrapheneOS, CalyxOS, Stock Android, Enterprise MDM)"
+        },
+        "edition": {
+          "type": "string",
+          "description": "Requested binary edition (e.g. Free / Community Edition (P2P Mesh) or Enterprise Edition)"
+        },
+        "useCase": {
+          "type": "string",
+          "description": "Intended deployment or security research use case"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING_EMAIL_LINK", "LINK_PUSHED", "VERIFIED"],
+          "description": "Status of APK dispatch by Admin"
+        },
+        "submittedAt": {
+          "type": "string",
+          "description": "ISO timestamp of request"
+        }
+      },
+      "required": ["fullName", "email", "organization", "osPlatform", "submittedAt"]
+    },
+    "NewsletterSubscription": {
+      "title": "Post-Quantum Security Newsletter Subscription",
+      "description": "Stores user email subscriptions for Post-Quantum Security intelligence updates, NIST PQC vulnerability alerts, and release briefs.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Subscriber email address"
+        },
+        "topics": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Selected update topics (e.g., PQC Vulnerability Alerts, NIST FIPS 203 Updates, Mobile Mesh Releases)"
+        },
+        "source": {
+          "type": "string",
+          "description": "Signup location or referral tag"
+        },
+        "subscribedAt": {
+          "type": "string",
+          "description": "ISO timestamp of subscription"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["ACTIVE", "UNSUBSCRIBED"],
+          "description": "Subscription status"
+        }
+      },
+      "required": ["email", "subscribedAt"]
+    }
+  },
+  "firestore": {
+    "enterprise_trial_requests": {
+      "entity": "EnterpriseTrialRequest",
+      "description": "Collection of all enterprise trial and security SLA inquiries for CRM lead tracking"
+    },
+    "apk_download_requests": {
+      "entity": "ApkDownloadRequest",
+      "description": "Collection of APK download CRM registration requests awaiting Admin approval and email dispatch"
+    },
+    "newsletter_subscriptions": {
+      "entity": "NewsletterSubscription",
+      "description": "Collection storing email subscriptions for Post-Quantum Security updates"
+    }
+  }
+}
