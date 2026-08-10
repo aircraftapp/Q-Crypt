@@ -29,6 +29,7 @@ import { RealtimeTransparencyDashboard } from './components/RealtimeTransparency
 import { PublicVerificationPortal } from './components/PublicVerificationPortal';
 import { RealTimeTransparencyLedger } from './components/RealTimeTransparencyLedger';
 import { AuditTrail } from './components/AuditTrail';
+import { PqcTerminologySection } from './components/PqcTerminologySection';
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 35, scale: 0.98 },
@@ -238,6 +239,16 @@ export default function App() {
                 variants={sectionVariants}
               >
                 <PqcCodeAndDeveloperResources />
+              </motion.div>
+
+              {/* Interactive PQC Terminology (FIPS 203 & 204) Section in English & French */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <PqcTerminologySection />
               </motion.div>
 
               {/* Value Props & Hardware Enclave Support */}

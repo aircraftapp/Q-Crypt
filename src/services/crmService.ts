@@ -51,9 +51,24 @@ export interface NewsletterSubscription {
   firestoreTimestamp?: any;
 }
 
+export interface PqcHandshakeLogDoc {
+  id?: string;
+  sessionId: string;
+  pqcAlgorithm: 'ML-KEM-1024' | 'ML-DSA-87' | 'HYBRID-KYBER-25519';
+  enclaveId: string;
+  immutableVerifyHash: string;
+  handshakeMs: number;
+  status: 'IMMUTABLE_VERIFIED' | 'HARDWARE_ENCLAVE_LOCKED';
+  timestamp: string;
+  secretRawBytes?: string;
+  submittedAt?: string;
+  firestoreTimestamp?: any;
+}
+
 const COLLECTION_NAME = 'enterprise_trial_requests';
 const APK_COLLECTION_NAME = 'apk_download_requests';
 const NEWSLETTER_COLLECTION_NAME = 'newsletter_subscriptions';
+const PQC_LOGS_COLLECTION_NAME = 'pqc_handshake_logs';
 
 export const crmService = {
   /**
@@ -244,6 +259,41 @@ export const crmService = {
     } catch (error) {
       console.error('Failed to update Newsletter subscription in Firestore:', error);
       return false;
+    }
+  },
+
+  /**
+   * Fetch all PQC Handshake logs from Firestore
+   */
+  async fetchPqcHandshakeLogs(): Promise<PqcHandshakeLogDoc[]> {
+    try {
+      const q = query(collection(db, PQC_LOGS_COLLECTION_NAME), orderBy('submittedAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const list: PqcHandshakeLogDoc[] = [];
+      querySnapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() } as PqcHandshakeLogDoc);
+      });
+      return list;
+    } catch (error) {
+      console.warn('Failed to fetch PQC handshake logs from Firestore:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Log new immutable PQC handshake into Firestore
+   */
+  async logPqcHandshake(log: Omit<PqcHandshakeLogDoc, 'id'>): Promise<string> {
+    try {
+      const docRef = await addDoc(collection(db, PQC_LOGS_COLLECTION_NAME), {
+        ...log,
+        submittedAt: new Date().toISOString(),
+        firestoreTimestamp: serverTimestamp(),
+      });
+      return docRef.id;
+    } catch (error) {
+      console.warn('Failed to write PQC log to Firestore:', error);
+      return `local_log_${Date.now()}`;
     }
   }
 };

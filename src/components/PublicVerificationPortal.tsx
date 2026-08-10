@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ShieldCheck, Lock, Award, CheckCircle2, Copy, Check, Download, FileText, Cpu, Key, ArrowRight } from 'lucide-react';
+import { Search, ShieldCheck, Lock, Award, CheckCircle2, Copy, Check, Download, FileText, Cpu, Key, ArrowRight, QrCode, Camera, Smartphone, Scan, X, RefreshCw, Sparkles, Zap } from 'lucide-react';
 import { useToast } from './Toast';
 
 export interface CryptographicProof {
@@ -33,6 +33,9 @@ export const PublicVerificationPortal: React.FC = () => {
   });
 
   const [copiedProof, setCopiedProof] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [isQrScanningActive, setIsQrScanningActive] = useState(false);
+  const [showSessionQrCode, setShowSessionQrCode] = useState(false);
 
   const sampleSessions = [
     'QCRYPT-SESS-99201',
@@ -40,6 +43,25 @@ export const PublicVerificationPortal: React.FC = () => {
     'QCRYPT-BSI-8821',
     'QCRYPT-DELHI-0091'
   ];
+
+  const androidSimulatedQrSessions = [
+    { id: 'QCRYPT-ANDROID-8890', title: 'Pixel 9 Pro Enclave Handshake (Titan M2)', algo: 'ML-KEM-1024' },
+    { id: 'QCRYPT-SAMSUNG-5521', title: 'Galaxy S25 Knox StrongBox Session', algo: 'ML-KEM-1024' },
+    { id: 'QCRYPT-AIRGAPPED-9001', title: 'Air-Gapped Sovereign Vault Handshake', algo: 'ML-KEM-1024 / ML-DSA-87' }
+  ];
+
+  const handleSimulateQrScan = (sessionIdToScan: string) => {
+    setIsQrScanningActive(true);
+    showToast('QR Scanner Engaged', 'Scanning PQC Zero-Knowledge handshake payload from Android device...', 'info');
+
+    setTimeout(() => {
+      setIsQrScanningActive(false);
+      setShowQrModal(false);
+      setInputSessionId(sessionIdToScan);
+      handleVerifySession(sessionIdToScan);
+      showToast('QR Handshake Verified! ⚡', `Instantly imported session ${sessionIdToScan} via QR Code without manual entry!`, 'success');
+    }, 1200);
+  };
 
   const handleVerifySession = (sessionToTest?: string) => {
     const targetId = sessionToTest || inputSessionId;
@@ -110,10 +132,20 @@ export const PublicVerificationPortal: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-slate-400 font-mono mt-0.5">
-              Input any encrypted session ID to retrieve a cryptographically signed proof of post-quantum protection.
+              Input any encrypted session ID or scan an Android app QR code to instantly verify post-quantum protection.
             </p>
           </div>
         </div>
+
+        {/* QR Handshake Scanner Trigger Button */}
+        <button
+          onClick={() => setShowQrModal(true)}
+          className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-mono font-bold text-xs flex items-center space-x-2 shadow-xl shadow-purple-950/40 border border-purple-400/30 active:scale-95 transition-all shrink-0 self-start sm:self-auto cursor-pointer"
+        >
+          <QrCode className="w-4 h-4 text-purple-200" />
+          <span>QR Handshake Scan</span>
+          <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
+        </button>
       </div>
 
       {/* Search Bar & Quick Tags */}
@@ -247,6 +279,117 @@ export const PublicVerificationPortal: React.FC = () => {
             </button>
           </div>
 
+        </div>
+      )}
+
+      {/* QR Code Secure Handshake Modal */}
+      {showQrModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-purple-500/40 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl relative font-sans">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-purple-950 border border-purple-500/50 rounded-2xl text-purple-400">
+                  <Smartphone className="w-6 h-6 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    <span>QR Code Secure Handshake</span>
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-purple-950 text-purple-300 border border-purple-700 rounded">
+                      ANDROID PQC
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-400 font-mono">
+                    Instant session verification directly from Android app camera scan.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowQrModal(false)}
+                className="p-2 rounded-xl bg-slate-950 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Simulated Camera Scanner Viewfinder */}
+            <div className="relative bg-slate-950 border-2 border-dashed border-purple-500/40 rounded-2xl p-6 text-center space-y-4 overflow-hidden">
+              
+              {/* Laser Scanning Bar */}
+              {isQrScanningActive && (
+                <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-purple-500 via-cyan-400 to-purple-500 shadow-lg shadow-cyan-400/80 animate-bounce top-1/3" />
+              )}
+
+              <div className="w-28 h-28 mx-auto bg-slate-900 border border-purple-500/60 rounded-2xl p-3 flex items-center justify-center relative shadow-inner">
+                {/* SVG Visual QR Code Pattern */}
+                <svg className="w-full h-full text-cyan-400" viewBox="0 0 100 100" fill="currentColor">
+                  <rect x="10" y="10" width="25" height="25" rx="3" fill="none" stroke="currentColor" strokeWidth="6" />
+                  <rect x="17" y="17" width="11" height="11" fill="currentColor" />
+                  <rect x="65" y="10" width="25" height="25" rx="3" fill="none" stroke="currentColor" strokeWidth="6" />
+                  <rect x="72" y="17" width="11" height="11" fill="currentColor" />
+                  <rect x="10" y="65" width="25" height="25" rx="3" fill="none" stroke="currentColor" strokeWidth="6" />
+                  <rect x="17" y="72" width="11" height="11" fill="currentColor" />
+                  <rect x="45" y="15" width="10" height="10" />
+                  <rect x="45" y="45" width="12" height="12" />
+                  <rect x="65" y="65" width="10" height="10" />
+                  <rect x="80" y="80" width="10" height="10" />
+                  <rect x="65" y="45" width="10" height="10" />
+                </svg>
+
+                <Camera className="w-6 h-6 text-purple-300 absolute inset-0 m-auto bg-slate-950/80 p-1 rounded-full border border-purple-500" />
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-xs font-mono font-bold text-slate-200 block">
+                  {isQrScanningActive ? 'Decoding PQC Signature Payload...' : 'Ready to Scan Mobile Android Handshake'}
+                </span>
+                <span className="text-[11px] text-slate-400 font-mono block">
+                  Point camera at Android device QR Code or select a simulated session below.
+                </span>
+              </div>
+            </div>
+
+            {/* Instant Simulated Android QR Codes */}
+            <div className="space-y-2">
+              <span className="text-xs font-mono font-bold text-slate-400 uppercase block">
+                Simulate Android Device QR Handshake Import:
+              </span>
+
+              <div className="space-y-2 font-mono text-xs">
+                {androidSimulatedQrSessions.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSimulateQrScan(item.id)}
+                    disabled={isQrScanningActive}
+                    className="w-full p-3 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/50 flex items-center justify-between text-left transition-all group cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <QrCode className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                      <div>
+                        <div className="font-bold text-slate-200 group-hover:text-purple-300">{item.title}</div>
+                        <div className="text-[10px] text-slate-400">{item.id} • {item.algo}</div>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-bold">
+                      Scan Handshake ⚡
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-800 flex justify-end">
+              <button
+                onClick={() => setShowQrModal(false)}
+                className="px-4 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-slate-300 font-mono text-xs font-bold border border-slate-800"
+              >
+                Cancel
+              </button>
+            </div>
+
+          </div>
         </div>
       )}
 

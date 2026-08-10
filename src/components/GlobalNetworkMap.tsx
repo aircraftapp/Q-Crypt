@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { Globe, Radio, Cpu, ShieldCheck, Zap, RefreshCw, Activity, Compass, MapPin, Plus, Sparkles, Award, Shield } from 'lucide-react';
+import { Globe, Radio, Cpu, ShieldCheck, Zap, RefreshCw, Activity, Compass, MapPin, Plus, Sparkles, Award, Shield, Flame } from 'lucide-react';
 import { useToast } from './Toast';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -122,6 +122,7 @@ export const GlobalNetworkMap: React.FC = () => {
   const [rotation, setRotation] = useState<[number, number]>([-15, -25]);
   const [isRotating, setIsRotating] = useState<boolean>(true);
   const [nodeFilter, setNodeFilter] = useState<'ALL' | 'Primary Enclave' | 'Air-Gapped Node'>('ALL');
+  const [showThreatHeatmap, setShowThreatHeatmap] = useState<boolean>(true);
 
   // Real-Time Notification: Function to add a new Quantum-Safe Region
   const handleAddNewRegion = () => {
@@ -172,6 +173,33 @@ export const GlobalNetworkMap: React.FC = () => {
       .attr('viewBox', `0 0 ${width} ${height}`);
 
     svg.selectAll('*').remove();
+
+    // SVG Gradients Definition for Heatmap & Glow
+    const defs = svg.append('defs');
+
+    // Heat Gradient - Critical (Red)
+    const radGradCritical = defs.append('radialGradient')
+      .attr('id', 'heatGradCritical')
+      .attr('cx', '50%').attr('cy', '50%').attr('r', '50%');
+    radGradCritical.append('stop').attr('offset', '0%').attr('stop-color', '#ef4444').attr('stop-opacity', '0.75');
+    radGradCritical.append('stop').attr('offset', '50%').attr('stop-color', '#f97316').attr('stop-opacity', '0.35');
+    radGradCritical.append('stop').attr('offset', '100%').attr('stop-color', '#ef4444').attr('stop-opacity', '0');
+
+    // Heat Gradient - High Activity (Amber)
+    const radGradHigh = defs.append('radialGradient')
+      .attr('id', 'heatGradHigh')
+      .attr('cx', '50%').attr('cy', '50%').attr('r', '50%');
+    radGradHigh.append('stop').attr('offset', '0%').attr('stop-color', '#f59e0b').attr('stop-opacity', '0.7');
+    radGradHigh.append('stop').attr('offset', '60%').attr('stop-color', '#fbbf24').attr('stop-opacity', '0.25');
+    radGradHigh.append('stop').attr('offset', '100%').attr('stop-color', '#f59e0b').attr('stop-opacity', '0');
+
+    // Heat Gradient - Active PQC (Cyan)
+    const radGradCyan = defs.append('radialGradient')
+      .attr('id', 'heatGradCyan')
+      .attr('cx', '50%').attr('cy', '50%').attr('r', '50%');
+    radGradCyan.append('stop').attr('offset', '0%').attr('stop-color', '#06b6d4').attr('stop-opacity', '0.65');
+    radGradCyan.append('stop').attr('offset', '60%').attr('stop-color', '#38bdf8').attr('stop-opacity', '0.2');
+    radGradCyan.append('stop').attr('offset', '100%').attr('stop-color', '#06b6d4').attr('stop-opacity', '0');
 
     // D3 Projection Setup
     let projection: d3.GeoProjection;
@@ -224,6 +252,54 @@ export const GlobalNetworkMap: React.FC = () => {
       .attr('stroke', '#0284c7')
       .attr('stroke-width', 0.8)
       .attr('stroke-opacity', 0.3);
+
+    // Draw Quantum Threat Heatmap Overlay (D3 Radial Heat Hotspots)
+    if (showThreatHeatmap) {
+      const gHeatmap = svg.append('g').attr('class', 'heatmap-layer');
+
+      nodes.forEach((node) => {
+        const coords = projection(node.coordinates);
+        if (!coords) return;
+
+        // Hide back-of-globe hotspots in orthographic mode
+        if (projectionType === 'orthographic') {
+          const distance = d3.geoDistance(node.coordinates, [-rotation[0], -rotation[1]]);
+          if (distance > Math.PI / 2) return;
+        }
+
+        // Determine heat gradient intensity based on node location/type
+        let gradId = 'url(#heatGradCyan)';
+        let baseRadius = 24;
+
+        if (['Frankfurt', 'Luxembourg City', 'Washington D.C.'].includes(node.city)) {
+          gradId = 'url(#heatGradCritical)';
+          baseRadius = 40;
+        } else if (['Bengaluru', 'Tokyo', 'Zurich', 'London'].includes(node.city)) {
+          gradId = 'url(#heatGradHigh)';
+          baseRadius = 32;
+        }
+
+        const heatGroup = gHeatmap.append('g')
+          .attr('transform', `translate(${coords[0]}, ${coords[1]})`);
+
+        // Outer pulsing heat radius
+        heatGroup.append('circle')
+          .attr('r', baseRadius)
+          .attr('fill', gradId)
+          .attr('pointer-events', 'none')
+          .append('animate')
+          .attr('attributeName', 'r')
+          .attr('values', `${baseRadius}; ${baseRadius * 1.35}; ${baseRadius}`)
+          .attr('dur', `${2 + (node.id.charCodeAt(0) % 3)}s`)
+          .attr('repeatCount', 'indefinite');
+
+        // Inner core heat
+        heatGroup.append('circle')
+          .attr('r', baseRadius * 0.4)
+          .attr('fill', gradId)
+          .attr('pointer-events', 'none');
+      });
+    }
 
     // Draw Quantum Lattice Tunnel Arcs
     const gLinks = svg.append('g').attr('class', 'links-layer');
@@ -330,7 +406,7 @@ export const GlobalNetworkMap: React.FC = () => {
         .attr('fill', isSelected ? '#10b981' : isPawStampRegion ? '#f59e0b' : '#94a3b8');
     });
 
-  }, [projectionType, rotation, selectedNode, nodeFilter, nodes]);
+  }, [projectionType, rotation, selectedNode, nodeFilter, nodes, showThreatHeatmap]);
 
   // Auto rotation loop for 3D Globe
   useEffect(() => {
@@ -366,9 +442,30 @@ export const GlobalNetworkMap: React.FC = () => {
           </div>
         </div>
 
-        {/* Projection Controls, Add Region Button & Filter */}
+        {/* Projection Controls, Threat Heatmap Toggle, Add Region Button & Filter */}
         <div className="flex flex-wrap items-center gap-2">
           
+          {/* Quantum Threat Heatmap Overlay Toggle Button */}
+          <button
+            onClick={() => {
+              const nextState = !showThreatHeatmap;
+              setShowThreatHeatmap(nextState);
+              showToast(
+                nextState ? 'Quantum Threat Heatmap Activated 💥' : 'Heatmap Overlay Hidden',
+                nextState ? 'Visualizing real-time geographic nodes with peak PQC handshake volume & lattice activity.' : 'Overlay disabled.',
+                'info'
+              );
+            }}
+            className={`px-3.5 py-1.5 text-xs font-mono font-bold rounded-xl border transition-all flex items-center gap-1.5 shadow-lg ${
+              showThreatHeatmap
+                ? 'bg-gradient-to-r from-red-950 via-amber-950 to-orange-950 text-amber-300 border-amber-500/50 shadow-amber-500/10'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+            }`}
+          >
+            <Flame className={`w-3.5 h-3.5 ${showThreatHeatmap ? 'text-amber-400 animate-pulse' : 'text-slate-500'}`} />
+            <span>Threat Heatmap: {showThreatHeatmap ? 'ON' : 'OFF'}</span>
+          </button>
+
           {/* Real-time Toast Trigger: Add Quantum-Safe Region */}
           <button
             onClick={handleAddNewRegion}
