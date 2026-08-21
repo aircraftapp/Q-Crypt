@@ -28,7 +28,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenWhitepaper }) => {
         <div className="text-center max-w-4xl mx-auto space-y-6">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold shadow-lg">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>NIST FIPS 203 & 204 NATIVE POST-QUANTUM MESSAGING</span>
+            <span>{t('hero.topBadge')}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
@@ -117,10 +117,10 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenWhitepaper }) => {
           
           <div className="text-center max-w-2xl mx-auto">
             <h3 className="text-xl sm:text-2xl font-bold text-white font-sans">
-              Why Q-CRYPT? Understanding Post-Quantum Mobile Security
+              {t('hero.whyTitle')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-400 font-mono mt-1">
-              A comprehensive breakdown of quantum risks, mathematical lattice shielding, and hardware key isolation.
+              {t('hero.whySubtitle')}
             </p>
           </div>
 
@@ -134,21 +134,21 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenWhitepaper }) => {
                 </div>
                 <div>
                   <span className="text-[10px] font-mono font-bold text-rose-400 uppercase tracking-wider block">
-                    THE THREAT HORIZON
+                    {t('hero.pillar1Tag')}
                   </span>
                   <h4 className="text-base font-bold text-white font-sans">
-                    Harvest-Now, Decrypt-Later (HNDL)
+                    {t('hero.pillar1Title')}
                   </h4>
                 </div>
               </div>
 
               <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                Adversaries and nation-state actors are currently capturing and storing encrypted mobile traffic today. Once quantum computers running <strong className="text-white">Shor’s Algorithm</strong> reach scale, all legacy RSA-4096 and ECC P-256 keys will be instantly cracked, exposing historical archives.
+                {t('hero.pillar1Body')}
               </p>
 
               <div className="pt-2 border-t border-slate-800/80 text-[11px] font-mono text-rose-300 flex items-center justify-between">
-                <span>Legacy RSA / ECC Vulnerability:</span>
-                <span className="font-bold text-rose-400">100% High Risk</span>
+                <span>{t('hero.pillar1FooterLabel')}</span>
+                <span className="font-bold text-rose-400">{t('hero.pillar1FooterValue')}</span>
               </div>
             </div>
 
@@ -160,21 +160,21 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenWhitepaper }) => {
                 </div>
                 <div>
                   <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-wider block">
-                    MATHEMATICAL DEFENSE
+                    {t('hero.pillar2Tag')}
                   </span>
                   <h4 className="text-base font-bold text-white font-sans">
-                    NIST ML-KEM-1024 Lattice Cryptography
+                    {t('hero.pillar2Title')}
                   </h4>
                 </div>
               </div>
 
               <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                Q-CRYPT implements native <strong className="text-white">ML-KEM-1024 (Kyber)</strong> and <strong className="text-white">ML-DSA-87 (Dilithium)</strong>. Encryption keys are hidden inside 256-dimensional polynomial lattice noise vectors. Solving vector lattice problems is proven NP-hard, even for 10,000-qubit quantum systems.
+                {t('hero.pillar2Body')}
               </p>
 
               <div className="pt-2 border-t border-slate-800/80 text-[11px] font-mono text-cyan-300 flex items-center justify-between">
-                <span>Quantum Security Category:</span>
-                <span className="font-bold text-emerald-400">Category 5 (256-bit)</span>
+                <span>{t('hero.pillar2FooterLabel')}</span>
+                <span className="font-bold text-emerald-400">{t('hero.pillar2FooterValue')}</span>
               </div>
             </div>
 
@@ -186,21 +186,21 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenWhitepaper }) => {
                 </div>
                 <div>
                   <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block">
-                    HARDWARE ISOLATION
+                    {t('hero.pillar3Tag')}
                   </span>
                   <h4 className="text-base font-bold text-white font-sans">
-                    Titan M2 / Knox Hardware Key Binding
+                    {t('hero.pillar3Title')}
                   </h4>
                 </div>
               </div>
 
               <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                Master private keys are generated inside isolated hardware security enclaves (<strong className="text-white">Google Titan M2, Samsung Knox, iOS Secure Enclave</strong>). Keys never leave physical silicon, rendering memory scraping malware and OS root exploits completely powerless.
+                {t('hero.pillar3Body')}
               </p>
 
               <div className="pt-2 border-t border-slate-800/80 text-[11px] font-mono text-emerald-300 flex items-center justify-between">
-                <span>Key Storage Enclave:</span>
-                <span className="font-bold text-emerald-400">FIPS 140-3 Validated</span>
+                <span>{t('hero.pillar3FooterLabel')}</span>
+                <span className="font-bold text-emerald-400">{t('hero.pillar3FooterValue')}</span>
               </div>
             </div>
 
@@ -209,20 +209,20 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate, onOpenWhitepaper }) => {
           {/* Technical Specs Comparison Summary Bar */}
           <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="space-y-1">
-              <span className="text-[10px] font-mono text-slate-400 uppercase block">Sub-1.5ms Latency</span>
-              <span className="text-sm font-bold text-cyan-300 font-mono">Real-Time Voice & Push-to-Talk</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase block">{t('hero.spec1Label')}</span>
+              <span className="text-sm font-bold text-cyan-300 font-mono">{t('hero.spec1Value')}</span>
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-mono text-slate-400 uppercase block">Zero Metadata Retention</span>
-              <span className="text-sm font-bold text-emerald-400 font-mono">Ephemeral Peer-to-Peer Relay</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase block">{t('hero.spec2Label')}</span>
+              <span className="text-sm font-bold text-emerald-400 font-mono">{t('hero.spec2Value')}</span>
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-mono text-slate-400 uppercase block">Zero-Knowledge PIR</span>
-              <span className="text-sm font-bold text-amber-300 font-mono">Private Contact Lookup</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase block">{t('hero.spec3Label')}</span>
+              <span className="text-sm font-bold text-amber-300 font-mono">{t('hero.spec3Value')}</span>
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-mono text-slate-400 uppercase block">EU Sovereign Compliance</span>
-              <span className="text-sm font-bold text-purple-300 font-mono">DORA & BSI TR-02102-4</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase block">{t('hero.spec4Label')}</span>
+              <span className="text-sm font-bold text-purple-300 font-mono">{t('hero.spec4Value')}</span>
             </div>
           </div>
 

@@ -55,7 +55,7 @@ export const WhitepaperModal: React.FC<WhitepaperModalProps> = ({ isOpen, onClos
   const handleCopyCitation = (doi: string) => {
     navigator.clipboard.writeText(`Citation: ${doi}`);
     setCopiedCitation(doi);
-    showToast('Citation Copied', `DOI / Paper reference copied to clipboard: ${doi}`, 'info');
+    showToast('Citation Copied', undefined, 'info');
     setTimeout(() => setCopiedCitation(null), 2500);
   };
 
@@ -110,11 +110,7 @@ infrastructure against Harvest-Now-Decrypt-Later risks."
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    showToast(
-      'Academic Resource Downloaded 🎓',
-      'Q-CRYPT University Research & Technical Audit Summary saved to downloads.',
-      'success'
-    );
+    showToast('Resource Downloaded', 'Summary saved to downloads.', 'success');
   };
 
   const handleGeneratePdf = () => {
@@ -172,7 +168,7 @@ Enclave. Keys cannot be extracted, even if the primary mobile kernel is compromi
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    showToast('Whitepaper Downloaded', 'Q-CRYPT PQC Technical Whitepaper PDF saved to downloads.', 'success');
+    showToast('Whitepaper Downloaded', 'PDF saved to downloads.', 'success');
   };
 
   return (

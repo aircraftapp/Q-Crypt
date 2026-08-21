@@ -60,76 +60,366 @@
   box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
 }
 
-/* High-Tech Light Mode Theme Overrides */
+/* High-Tech & High-Contrast 'Military Report' Light Mode Theme Overrides */
 html.light-mode {
   color-scheme: light;
 }
 
 html.light-mode body {
-  background-color: #f1f5f9;
-  color: #0f172a;
+  background-color: #f8fafc !important;
+  color: #090d16 !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 html.light-mode .bg-slate-950,
-html.light-mode .bg-\[\#0A0F1B\] {
-  background-color: #f8fafc !important;
-  color: #0f172a !important;
+html.light-mode .bg-\[\#0A0F1B\],
+html.light-mode .bg-\[\#060913\],
+html.light-mode .bg-slate-950\/95,
+html.light-mode .bg-slate-950\/90,
+html.light-mode .bg-slate-950\/80,
+html.light-mode .bg-slate-950\/70,
+html.light-mode .bg-slate-950\/60 {
+  background-color: #ffffff !important;
+  color: #090d16 !important;
+  border-color: #cbd5e1 !important;
 }
 
-html.light-mode .bg-slate-900 {
-  background-color: #ffffff !important;
+html.light-mode .bg-slate-900,
+html.light-mode .bg-slate-900\/95,
+html.light-mode .bg-slate-900\/90,
+html.light-mode .bg-slate-900\/80,
+html.light-mode .bg-slate-900\/70,
+html.light-mode .bg-slate-900\/60,
+html.light-mode .bg-slate-900\/50,
+html.light-mode .bg-slate-900\/40,
+html.light-mode .bg-slate-800,
+html.light-mode .bg-slate-800\/80,
+html.light-mode .bg-slate-800\/60,
+html.light-mode .bg-slate-800\/40 {
+  background-color: #f1f5f9 !important;
   border-color: #cbd5e1 !important;
-  color: #0f172a !important;
+  color: #090d16 !important;
+}
+
+html.light-mode .bg-black,
+html.light-mode .bg-black\/60,
+html.light-mode .bg-black\/40 {
+  background-color: #e2e8f0 !important;
+  color: #090d16 !important;
+  border-color: #cbd5e1 !important;
 }
 
 html.light-mode .text-slate-100,
 html.light-mode .text-slate-200,
-html.light-mode .text-slate-300 {
-  color: #1e293b !important;
+html.light-mode .text-slate-300,
+html.light-mode .text-white {
+  color: #090d16 !important;
 }
 
 html.light-mode .text-slate-400,
 html.light-mode .text-slate-500 {
-  color: #475569 !important;
+  color: #334155 !important;
 }
 
 html.light-mode .border-slate-800,
-html.light-mode .border-slate-900 {
+html.light-mode .border-slate-900,
+html.light-mode .border-slate-700,
+html.light-mode .border-slate-800\/60,
+html.light-mode .border-slate-800\/80 {
+  border-color: #cbd5e1 !important;
+}
+
+html.light-mode .bg-cyan-950,
+html.light-mode .bg-cyan-950\/90,
+html.light-mode .bg-cyan-950\/80,
+html.light-mode .bg-cyan-950\/70,
+html.light-mode .bg-cyan-950\/60,
+html.light-mode .bg-cyan-950\/40,
+html.light-mode .bg-cyan-950\/20 {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+  border-color: #7dd3fc !important;
+}
+
+html.light-mode .bg-emerald-950,
+html.light-mode .bg-emerald-950\/90,
+html.light-mode .bg-emerald-950\/80,
+html.light-mode .bg-emerald-950\/70,
+html.light-mode .bg-emerald-950\/60,
+html.light-mode .bg-emerald-950\/40,
+html.light-mode .bg-emerald-950\/20 {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  border-color: #6ee7b7 !important;
+}
+
+html.light-mode .bg-purple-950,
+html.light-mode .bg-purple-950\/80,
+html.light-mode .bg-purple-950\/40,
+html.light-mode .bg-purple-950\/20 {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #d8b4fe !important;
+}
+
+html.light-mode .bg-amber-950,
+html.light-mode .bg-amber-950\/80,
+html.light-mode .bg-amber-950\/40,
+html.light-mode .bg-amber-950\/20 {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fcd34d !important;
+}
+
+html.light-mode .bg-rose-950,
+html.light-mode .bg-rose-950\/90,
+html.light-mode .bg-rose-950\/80,
+html.light-mode .bg-rose-950\/70,
+html.light-mode .bg-rose-950\/40,
+html.light-mode .bg-rose-950\/20,
+html.light-mode .bg-red-950,
+html.light-mode .bg-red-950\/90,
+html.light-mode .bg-red-950\/80,
+html.light-mode .bg-red-950\/40 {
+  background-color: #ffe4e6 !important;
+  color: #9f1239 !important;
+  border-color: #fecdd3 !important;
+}
+
+html.light-mode .bg-blue-950,
+html.light-mode .bg-blue-950\/80,
+html.light-mode .bg-blue-950\/40,
+html.light-mode .bg-blue-950\/20 {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #93c5fd !important;
+}
+
+/* High-Contrast Military Technical Document Review Enhancements */
+html.light-mode pre,
+html.light-mode code {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+html.light-mode table {
+  border-color: #94a3b8 !important;
+}
+
+html.light-mode th {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light-mode td {
   border-color: #e2e8f0 !important;
 }
 
-/* Printer-Friendly CSS Rules */
+html.light-mode tr:nth-child(even) {
+  background-color: #f8fafc !important;
+}
+
+html.light-mode tr:hover {
+  background-color: #e0f2fe !important;
+}
+
+html.light-mode .pro-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Printer-Friendly CSS Rules & Specific Media Queries for Physical Document Export */
+@page {
+  size: A4 portrait;
+  margin: 12mm 15mm;
+}
+
 @media print {
-  nav, footer, button, .no-print {
+  /* Hide non-document browser UI, navigation bars, interactive buttons and controls */
+  nav, 
+  footer, 
+  button, 
+  .no-print,
+  [role="dialog"],
+  .toast-container,
+  .animate-pulse,
+  .animate-spin,
+  .glow-accent,
+  .backdrop-blur-md,
+  .backdrop-blur-xl {
     display: none !important;
+    visibility: hidden !important;
   }
   
-  body, #pqc-code-resources {
+  html, body {
     background: #ffffff !important;
-    color: #000000 !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .bg-slate-950, .bg-slate-900, .bg-slate-900\/60, .bg-slate-950\/80 {
+  /* Specific Print Media Queries: #audit-trail & #security-audit-status */
+  #audit-trail,
+  #security-audit-status,
+  .printable-audit-section {
     background: #ffffff !important;
-    color: #000000 !important;
-    border: 1px solid #cccccc !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 10pt 0 !important;
+    border: none !important;
     box-shadow: none !important;
+    overflow: visible !important;
+    page-break-before: auto;
+  }
+
+  /* Print Section Headers */
+  #audit-trail h2,
+  #audit-trail h3,
+  #security-audit-status h2,
+  #security-audit-status h3 {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+    font-size: 14pt !important;
+    margin-bottom: 6pt !important;
+    border-bottom: 2pt solid #0284c7 !important;
+    padding-bottom: 4pt !important;
+  }
+
+  #audit-trail p,
+  #security-audit-status p {
+    color: #334155 !important;
+    font-size: 9pt !important;
+  }
+
+  /* Audit Cards & Certification Item Blocks in Print */
+  #audit-trail .audit-card,
+  #security-audit-status .certification-card,
+  .audit-printable-card {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+    border: 1pt solid #cbd5e1 !important;
+    border-radius: 4pt !important;
+    box-shadow: none !important;
+    padding: 10pt 12pt !important;
+    margin-bottom: 10pt !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Audit Trail Grid Expansion for Physical Printing */
+  #audit-trail .grid,
+  #security-audit-status .grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10pt !important;
+  }
+
+  /* Table formatting for print */
+  .audit-table,
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 10pt 0 !important;
+    border: 1pt solid #94a3b8 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .audit-table th,
+  table th {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-size: 8pt !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    border: 1pt solid #cbd5e1 !important;
+    padding: 5pt 8pt !important;
+  }
+
+  .audit-table td,
+  table td {
+    color: #1e293b !important;
+    font-size: 8pt !important;
+    border: 1pt solid #e2e8f0 !important;
+    padding: 5pt 8pt !important;
+  }
+
+  /* Status Badges in Print */
+  .status-badge-print,
+  #audit-trail [class*="bg-emerald"],
+  #security-audit-status [class*="bg-emerald"],
+  #audit-trail [class*="bg-cyan"],
+  #security-audit-status [class*="bg-cyan"] {
+    background: #f0fdf4 !important;
+    background-color: #f0fdf4 !important;
+    border: 1pt solid #16a34a !important;
+    color: #15803d !important;
+    font-weight: 700 !important;
+    font-size: 7.5pt !important;
+    padding: 1pt 5pt !important;
+    border-radius: 3pt !important;
+    display: inline-block !important;
+    text-transform: uppercase !important;
+  }
+
+  /* SHA-256 Hashes and Cryptographic Fingerprints */
+  .audit-hash-print,
+  #audit-trail code,
+  #security-audit-status code,
+  #audit-trail .font-mono,
+  #security-audit-status .font-mono {
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 7.5pt !important;
+    color: #0369a1 !important;
+    word-break: break-all !important;
+  }
+
+  /* Document Attestation Header & Footer (Print Only) */
+  .print-document-header {
+    display: block !important;
+    border-bottom: 2pt solid #0f172a !important;
+    padding-bottom: 8pt !important;
+    margin-bottom: 12pt !important;
+  }
+
+  .print-document-footer {
+    display: block !important;
+    border-top: 1pt solid #94a3b8 !important;
+    padding-top: 8pt !important;
+    margin-top: 16pt !important;
+    font-size: 7.5pt !important;
+    color: #64748b !important;
+    display: flex !important;
+    justify-content: space-between !important;
   }
 
   pre {
     background: #f8fafc !important;
     color: #0f172a !important;
-    border: 1px solid #cbd5e1 !important;
+    border: 1pt solid #cbd5e1 !important;
     white-space: pre-wrap !important;
     word-break: break-all !important;
     max-height: none !important;
+    font-size: 8pt !important;
   }
 
   h1, h2, h3, h4, span, p {
-    color: #000000 !important;
+    color: #0f172a !important;
   }
 }
-
 
 html.light-mode .text-white {
   color: #020617 !important;

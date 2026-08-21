@@ -378,15 +378,27 @@ export const AuditTrail: React.FC = () => {
             </div>
           </div>
 
-          {/* ONE-CLICK GENERATE COMPLIANCE PACKAGE BUTTON */}
-          <button
-            onClick={handleGenerateCompliancePackage}
-            className="px-5 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-xl shadow-cyan-500/20 active:scale-95 shrink-0 self-start md:self-auto cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4 text-slate-950 animate-spin-slow" />
-            <span>Generate Compliance Package</span>
-            <Printer className="w-4 h-4 text-slate-950" />
-          </button>
+          {/* Action buttons */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start md:self-auto no-print">
+            {/* ONE-CLICK GENERATE COMPLIANCE PACKAGE BUTTON */}
+            <button
+              onClick={handleGenerateCompliancePackage}
+              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-2.5 transition-all shadow-xl shadow-cyan-500/20 active:scale-95 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-slate-950 animate-spin-slow" />
+              <span>Generate Compliance Package</span>
+              <Printer className="w-4 h-4 text-slate-950" />
+            </button>
+
+            <button
+              onClick={() => window.print()}
+              className="px-4 py-3 rounded-2xl bg-slate-900 border border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer"
+              title="Print Audit Trail document"
+            >
+              <FileText className="w-4 h-4 text-cyan-400" />
+              <span>Print Trail</span>
+            </button>
+          </div>
         </div>
 
         {/* 10 Audits List */}
@@ -394,7 +406,7 @@ export const AuditTrail: React.FC = () => {
           {tenAudits.map((audit, idx) => (
             <div
               key={audit.id}
-              className="bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 space-y-3 transition-all shadow-xl font-mono text-xs flex flex-col justify-between group"
+              className="audit-card bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 space-y-3 transition-all shadow-xl font-mono text-xs flex flex-col justify-between group"
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between">

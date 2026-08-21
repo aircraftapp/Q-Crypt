@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { 
   Calculator, Shield, ShieldAlert, ShieldCheck, AlertTriangle, ArrowRight, 
-  CheckCircle2, Download, Copy, RefreshCcw, Building2, Cpu, HardDrive, Lock, FileText
+  CheckCircle2, Download, Copy, RefreshCcw, Building2, Cpu, HardDrive, Lock, FileText, PieChart
 } from 'lucide-react';
 import { useToast } from './Toast';
+import { QuantumRiskD3Dashboard } from './QuantumRiskD3Dashboard';
+import { QuantumThreatAssessment } from './QuantumThreatAssessment';
 
 interface QuestionOption {
   label: string;
@@ -24,6 +26,8 @@ export const QuantumReadinessCalculator: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [isCalculated, setIsCalculated] = useState<boolean>(false);
+  const [selectedOrgId, setSelectedOrgId] = useState<string>('defense');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'audit' | 'threat-assessment'>('threat-assessment');
 
   const questions: Question[] = [
     {
@@ -146,129 +150,213 @@ Generated via Q-CRYPT Security Architecture Portal`;
           </p>
         </div>
 
-        {/* Calculator Interface Container */}
-        <div className="max-w-4xl mx-auto p-6 sm:p-10 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden">
-          
-          {!isCalculated ? (
-            <div className="space-y-8">
-              {/* Progress Tracker */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-mono text-slate-400">
-                  <span>QUESTION {currentStep + 1} OF {questions.length}</span>
-                  <span className="text-cyan-400 font-bold">{Math.round(((currentStep + 1) / questions.length) * 100)}% COMPLETE</span>
+        {/* Navigation Tabs */}
+        <div className="flex justify-center">
+          <div className="inline-flex p-1.5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-x-1 font-mono text-xs font-bold overflow-x-auto max-w-full">
+            <button
+              onClick={() => setActiveTab('threat-assessment')}
+              className={`px-4 sm:px-5 py-2.5 rounded-xl flex items-center space-x-2 transition-all cursor-pointer shrink-0 ${
+                activeTab === 'threat-assessment'
+                  ? 'bg-gradient-to-r from-rose-500 via-amber-500 to-cyan-500 text-slate-950 shadow-lg shadow-rose-500/20 font-black'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <ShieldAlert className="w-4 h-4 text-rose-400" />
+              <span>Quantum Threat Assessment</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`px-4 sm:px-5 py-2.5 rounded-xl flex items-center space-x-2 transition-all cursor-pointer shrink-0 ${
+                activeTab === 'dashboard'
+                  ? 'bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 shadow-lg shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <PieChart className="w-4 h-4" />
+              <span>D3 Risk Assessment Dashboard</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('audit')}
+              className={`px-4 sm:px-5 py-2.5 rounded-xl flex items-center space-x-2 transition-all cursor-pointer shrink-0 ${
+                activeTab === 'audit'
+                  ? 'bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 shadow-lg shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Calculator className="w-4 h-4" />
+              <span>Interactive Readiness Audit {isCalculated ? `(${totalPoints}/100)` : ''}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content 1: Quantum Threat Assessment Simulation Engine */}
+        {activeTab === 'threat-assessment' && (
+          <div className="max-w-6xl mx-auto">
+            <QuantumThreatAssessment />
+          </div>
+        )}
+
+        {/* Tab Content 2: D3 Quantum Risk Assessment Dashboard */}
+        {activeTab === 'dashboard' && (
+          <div className="max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6">
+            <QuantumRiskD3Dashboard
+              selectedOrgId={selectedOrgId}
+              onSelectOrgId={setSelectedOrgId}
+              calculatedScore={isCalculated ? totalPoints : undefined}
+            />
+
+            <div className="pt-4 border-t border-slate-800 flex justify-center">
+              <button
+                onClick={() => setActiveTab('audit')}
+                className="px-6 py-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500/50 text-cyan-300 font-mono text-xs font-bold flex items-center space-x-2 transition-all shadow-md group cursor-pointer"
+              >
+                <span>Proceed to Customized 4-Step Readiness Audit</span>
+                <ArrowRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab Content 3: Readiness Calculator Container */}
+        {activeTab === 'audit' && (
+          <div className="max-w-4xl mx-auto p-6 sm:p-10 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden">
+            
+            {!isCalculated ? (
+              <div className="space-y-8">
+                {/* Progress Tracker */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-mono text-slate-400">
+                    <span>QUESTION {currentStep + 1} OF {questions.length}</span>
+                    <span className="text-cyan-400 font-bold">{Math.round(((currentStep + 1) / questions.length) * 100)}% COMPLETE</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                    <div 
+                      className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 transition-all duration-300"
+                      style={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
-                  <div 
-                    className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 transition-all duration-300"
-                    style={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
+
+                {/* Current Question Block */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="text-lg sm:text-xl font-extrabold text-white font-sans">
+                      {questions[currentStep].title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-400 font-sans">
+                      {questions[currentStep].description}
+                    </p>
+                  </div>
+
+                  {/* Options Cards */}
+                  <div className="grid grid-cols-1 gap-3 font-sans">
+                    {questions[currentStep].options.map((opt, idx) => {
+                      const isSelected = selectedAnswers[questions[currentStep].id] === opt.points;
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleSelectOption(questions[currentStep].id, opt.points)}
+                          className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between space-x-4 cursor-pointer ${
+                            isSelected
+                              ? 'bg-cyan-950/80 border-cyan-500 text-white shadow-lg ring-1 ring-cyan-500/50'
+                              : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                          }`}
+                        >
+                          <div className="space-y-1">
+                            <span className="text-sm font-bold block">{opt.label}</span>
+                            {opt.sublabel && (
+                              <span className="text-xs text-slate-400 block font-mono">{opt.sublabel}</span>
+                            )}
+                          </div>
+
+                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
+                            isSelected ? 'border-cyan-400 bg-cyan-500 text-slate-950' : 'border-slate-700'
+                          }`}>
+                            {isSelected && <CheckCircle2 className="w-3.5 h-3.5 font-bold" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Navigation Controls */}
+                <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+                  <button
+                    disabled={currentStep === 0}
+                    onClick={() => setCurrentStep(prev => prev - 1)}
+                    className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
+                      currentStep === 0 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:text-white bg-slate-950 border border-slate-800 cursor-pointer'
+                    }`}
+                  >
+                    Previous
+                  </button>
+
+                  <button
+                    disabled={selectedAnswers[questions[currentStep].id] === undefined}
+                    onClick={handleNext}
+                    className={`px-6 py-2.5 rounded-xl text-xs font-mono font-bold flex items-center space-x-2 transition-all cursor-pointer ${
+                      selectedAnswers[questions[currentStep].id] !== undefined
+                        ? 'bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 hover:scale-105 shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                    }`}
+                  >
+                    <span>{currentStep === questions.length - 1 ? 'Calculate Score' : 'Next Question'}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Results & Executive Report Panel */
+              <div className="space-y-8 font-sans">
+                <div className="text-center space-y-3 border-b border-slate-800 pb-6">
+                  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-xs font-mono text-slate-400">
+                    <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>AUDIT ASSESSMENT GENERATED</span>
+                  </div>
+
+                  <h3 className="text-2xl sm:text-3xl font-black text-white">
+                    Quantum Readiness Posture
+                  </h3>
+                </div>
+
+                {/* Score Gauge & Category */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                  <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-2">
+                    <span className="text-xs font-mono text-slate-400 uppercase font-bold block">Quantum Risk Score</span>
+                    <div className="text-5xl font-black text-white font-mono tracking-tight">
+                      {totalPoints}<span className="text-sm text-slate-500 font-normal">/100</span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-mono block">Higher = Increased CRQC Vulnerability</span>
+                  </div>
+
+                  <div className={`p-6 rounded-2xl border md:col-span-2 space-y-2 ${riskCategory.color}`}>
+                    <div className="flex items-center space-x-2 font-mono text-xs font-bold uppercase">
+                      <ShieldAlert className="w-4 h-4" />
+                      <span>{riskCategory.label}</span>
+                    </div>
+                    <p className="text-xs sm:text-sm font-sans leading-relaxed text-slate-200">
+                      {riskCategory.desc}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Embedded D3 Quantum Threat Vectors Breakdown */}
+                <div className="pt-2 border-t border-slate-800">
+                  <h4 className="text-xs font-mono text-slate-400 uppercase font-bold mb-4 flex items-center space-x-2">
+                    <PieChart className="w-4 h-4 text-cyan-400" />
+                    <span>Organization Threat Vectors Breakdown (D3 Visualization)</span>
+                  </h4>
+
+                  <QuantumRiskD3Dashboard
+                    selectedOrgId={selectedOrgId}
+                    onSelectOrgId={setSelectedOrgId}
+                    calculatedScore={totalPoints}
                   />
                 </div>
-              </div>
-
-              {/* Current Question Block */}
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h3 className="text-lg sm:text-xl font-extrabold text-white font-sans">
-                    {questions[currentStep].title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-400 font-sans">
-                    {questions[currentStep].description}
-                  </p>
-                </div>
-
-                {/* Options Cards */}
-                <div className="grid grid-cols-1 gap-3 font-sans">
-                  {questions[currentStep].options.map((opt, idx) => {
-                    const isSelected = selectedAnswers[questions[currentStep].id] === opt.points;
-
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => handleSelectOption(questions[currentStep].id, opt.points)}
-                        className={`p-4 rounded-2xl border text-left transition-all flex items-start justify-between space-x-4 ${
-                          isSelected
-                            ? 'bg-cyan-950/80 border-cyan-500 text-white shadow-lg ring-1 ring-cyan-500/50'
-                            : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
-                        }`}
-                      >
-                        <div className="space-y-1">
-                          <span className="text-sm font-bold block">{opt.label}</span>
-                          {opt.sublabel && (
-                            <span className="text-xs text-slate-400 block font-mono">{opt.sublabel}</span>
-                          )}
-                        </div>
-
-                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
-                          isSelected ? 'border-cyan-400 bg-cyan-500 text-slate-950' : 'border-slate-700'
-                        }`}>
-                          {isSelected && <CheckCircle2 className="w-3.5 h-3.5 font-bold" />}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Navigation Controls */}
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
-                <button
-                  disabled={currentStep === 0}
-                  onClick={() => setCurrentStep(prev => prev - 1)}
-                  className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
-                    currentStep === 0 ? 'text-slate-600 cursor-not-allowed' : 'text-slate-300 hover:text-white bg-slate-950 border border-slate-800'
-                  }`}
-                >
-                  Previous
-                </button>
-
-                <button
-                  disabled={selectedAnswers[questions[currentStep].id] === undefined}
-                  onClick={handleNext}
-                  className={`px-6 py-2.5 rounded-xl text-xs font-mono font-bold flex items-center space-x-2 transition-all ${
-                    selectedAnswers[questions[currentStep].id] !== undefined
-                      ? 'bg-gradient-to-r from-cyan-500 to-emerald-400 text-slate-950 hover:scale-105 shadow-lg shadow-cyan-500/20'
-                      : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                  }`}
-                >
-                  <span>{currentStep === questions.length - 1 ? 'Calculate Score' : 'Next Question'}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ) : (
-            /* Results & Executive Report Panel */
-            <div className="space-y-8 font-sans">
-              <div className="text-center space-y-3 border-b border-slate-800 pb-6">
-                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-xs font-mono text-slate-400">
-                  <FileText className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>AUDIT ASSESSMENT GENERATED</span>
-                </div>
-
-                <h3 className="text-2xl sm:text-3xl font-black text-white">
-                  Quantum Readiness Posture
-                </h3>
-              </div>
-
-              {/* Score Gauge & Category */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-2">
-                  <span className="text-xs font-mono text-slate-400 uppercase font-bold block">Quantum Risk Score</span>
-                  <div className="text-5xl font-black text-white font-mono tracking-tight">
-                    {totalPoints}<span className="text-sm text-slate-500 font-normal">/100</span>
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-mono block">Higher = Increased CRQC Vulnerability</span>
-                </div>
-
-                <div className={`p-6 rounded-2xl border md:col-span-2 space-y-2 ${riskCategory.color}`}>
-                  <div className="flex items-center space-x-2 font-mono text-xs font-bold uppercase">
-                    <ShieldAlert className="w-4 h-4" />
-                    <span>{riskCategory.label}</span>
-                  </div>
-                  <p className="text-xs sm:text-sm font-sans leading-relaxed text-slate-200">
-                    {riskCategory.desc}
-                  </p>
-                </div>
-              </div>
 
               {/* Tailored Q-CRYPT Migration Action Plan */}
               <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
@@ -333,6 +421,7 @@ Generated via Q-CRYPT Security Architecture Portal`;
           )}
 
         </div>
+        )}
 
       </div>
     </section>

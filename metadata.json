@@ -1,6 +1,6 @@
 {
   "name": "Quantum Messenger (Q-CRYPT)",
-  "description": "High-security marketing landing page & portal for Quantum Messenger (Q-CRYPT) post-quantum encrypted Android messaging app.",
+  "description": "Quantum Messenger (Q-CRYPT) safeguards executive communications, intellectual property, and high-value institutional data against cyber surveillance and future quantum supercomputers using NIST FIPS 203/204 post-quantum lattice cryptography, Enterprise PKI, and FIPS 140-3 Hardware Security Modules (HSM).",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

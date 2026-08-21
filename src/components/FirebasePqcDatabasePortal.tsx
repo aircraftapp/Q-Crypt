@@ -108,11 +108,7 @@ export const FirebasePqcDatabasePortal: React.FC = () => {
         console.log('Logged locally with fallback');
       }
 
-      showToast(
-        'PQC Payload Encrypted & Synced to Firestore!',
-        `Encapsulated with ${selectedAlgorithm} (${selectedRegion} standard). Zero-trust lock verified.`,
-        'success'
-      );
+      showToast('Payload Encrypted', `Encapsulated with ${selectedAlgorithm}.`, 'success');
     }, 800);
   };
 
@@ -153,7 +149,7 @@ service cloud.firestore {
   const copyRules = () => {
     navigator.clipboard.writeText(firestoreSecurityRulesCode);
     setCopiedCode(true);
-    showToast('Firestore Rules Copied', 'PQC database security rules copied to clipboard.', 'success');
+    showToast('Rules Copied', 'Security rules copied to clipboard.', 'success');
     setTimeout(() => setCopiedCode(false), 2000);
   };
 

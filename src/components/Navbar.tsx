@@ -3,7 +3,7 @@ import {
   Shield, Cpu, Download, Key, Smartphone, Building2, ExternalLink, Menu, X, 
   CheckCircle, Lock, CpuIcon, Sparkles, Award, ShieldCheck, Star, Radio, 
   TrendingUp, Briefcase, FileText, DollarSign, PieChart, Users, ChevronRight, Binary, ArrowUpRight,
-  Sun, Moon, Database
+  Sun, Moon, Database, Layers
 } from 'lucide-react';
 import { APP_REFERENCE } from '../data';
 import { LanguageSelector } from './LanguageSelector';
@@ -60,9 +60,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenWhitepaper, on
 
   const navItems = [
     { label: t('nav.apk'), id: 'apk-portal', icon: Download, highlight: true },
-    { label: 'Firebase PQC Vault', id: 'firebase-pqc-database', icon: Database, highlight: true },
+    { label: t('nav.pqcChat'), id: 'interactive-chat-preview', icon: Smartphone, highlight: true },
+    { label: t('nav.compMatrix'), id: 'competitive-security-matrix', icon: Layers, highlight: true },
+    { label: t('nav.threatModeling'), id: 'quantum-threat-modeling', icon: Binary, highlight: true },
+    { label: t('nav.firebaseVault'), id: 'firebase-pqc-database', icon: Database, highlight: true },
+    { label: t('nav.enterprisePki'), id: 'enterprise-pki', icon: Key, highlight: true },
+    { label: t('nav.fipsHsm'), id: 'hardware-security-module', icon: Cpu, highlight: true },
+    { label: t('nav.quantumClocks'), id: 'quantum-clocks', icon: Radio, highlight: false },
+    { label: t('nav.anssiNis2'), id: 'anssi-nis2-france', icon: Award, highlight: false },
     { label: t('nav.features'), id: 'app-showcase', icon: Sparkles, highlight: false },
-    { label: t('nav.comparison'), id: 'security-comparison', icon: ShieldCheck, highlight: false },
     { label: t('nav.enterprise'), id: 'enterprise-portal', icon: Building2, highlight: true },
     { label: t('nav.faq'), id: 'faq-section', icon: Cpu, highlight: false },
   ];
@@ -218,17 +224,34 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenWhitepaper, on
 
           {/* Right Action Controls */}
           <div className="flex items-center space-x-2 shrink-0">
-            {/* Light / Dark Mode Toggle Button */}
+            {/* Global Theme Toggle: Dark Mode <-> High-Contrast 'Military Report' Light Mode */}
             <button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-cyan-400 text-cyan-300 hover:text-white transition-all shadow-md active:scale-95 flex items-center justify-center group"
-              title={theme === 'dark' ? 'Switch to High-Tech Light Mode' : 'Switch to High-Tech Dark Mode'}
-              aria-label="Toggle Theme"
+              onClick={() => {
+                toggleTheme();
+                showToast(
+                  theme === 'dark' ? 'Military Report Mode Enabled' : 'Dark Tactical Mode Enabled',
+                  theme === 'dark' ? 'High-contrast light palette optimized for technical review.' : 'Low-emission tactical dark palette active.',
+                  'info'
+                );
+              }}
+              className={`px-2.5 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-md active:scale-95 flex items-center space-x-1.5 cursor-pointer ${
+                theme === 'light'
+                  ? 'bg-slate-200 border-slate-400 text-slate-900 ring-1 ring-slate-400'
+                  : 'bg-slate-900/90 border-slate-700/80 hover:border-cyan-400 text-cyan-300 hover:text-white'
+              }`}
+              title={theme === 'dark' ? "Switch to High-Contrast 'Military Report' Light Mode" : 'Switch to Default Dark Mode'}
+              aria-label="Toggle Global Theme"
             >
               {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform" />
+                <>
+                  <FileText className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden md:inline text-[11px]">Military Report</span>
+                </>
               ) : (
-                <Moon className="w-4 h-4 text-cyan-400 group-hover:-rotate-12 transition-transform" />
+                <>
+                  <Moon className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="hidden md:inline text-[11px]">Dark Mode</span>
+                </>
               )}
             </button>
 
@@ -351,6 +374,38 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, onOpenWhitepaper, on
                   <ChevronRight className="w-4 h-4 text-cyan-400" />
                 </button>
               </div>
+            </div>
+
+            {/* Mobile Theme Toggle Button */}
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 my-2">
+              <span className="text-xs font-mono text-slate-300 font-bold">Theme Mode:</span>
+              <button
+                onClick={() => {
+                  toggleTheme();
+                  showToast(
+                    theme === 'dark' ? 'Military Report Mode Enabled' : 'Dark Tactical Mode Enabled',
+                    theme === 'dark' ? 'High-contrast light palette optimized for technical review.' : 'Low-emission tactical dark palette active.',
+                    'info'
+                  );
+                }}
+                className={`px-3 py-1.5 rounded-xl border font-mono text-xs font-bold transition-all shadow-md active:scale-95 flex items-center space-x-1.5 cursor-pointer ${
+                  theme === 'light'
+                    ? 'bg-slate-200 border-slate-400 text-slate-900'
+                    : 'bg-slate-950 border-cyan-500/50 text-cyan-300'
+                }`}
+              >
+                {theme === 'dark' ? (
+                  <>
+                    <FileText className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Military Report (Light)</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Tactical Dark Mode</span>
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Mobile active protocol indicator */}

@@ -30,6 +30,16 @@ import { PublicVerificationPortal } from './components/PublicVerificationPortal'
 import { RealTimeTransparencyLedger } from './components/RealTimeTransparencyLedger';
 import { AuditTrail } from './components/AuditTrail';
 import { PqcTerminologySection } from './components/PqcTerminologySection';
+import { QuantumClocksDashboard } from './components/QuantumClocksDashboard';
+import { AnssiNis2FranceSection } from './components/AnssiNis2FranceSection';
+import { EnterprisePkiSection } from './components/EnterprisePkiSection';
+import { HardwareSecurityModule } from './components/HardwareSecurityModule';
+import { QuantumMessengerChatPreview } from './components/QuantumMessengerChatPreview';
+import { AnonymizedRouting } from './components/AnonymizedRouting';
+import { HsmHardwareAttestation } from './components/HsmHardwareAttestation';
+import { LatticeVsClassicalSection } from './components/LatticeVsClassicalSection';
+import { CompetitiveSecurityMatrix } from './components/CompetitiveSecurityMatrix';
+import { QuantumThreatModeling } from './components/QuantumThreatModeling';
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 35, scale: 0.98 },
@@ -166,6 +176,19 @@ export default function App() {
                 <ApkDownloadPortal />
               </motion.div>
 
+              {/* Interactive Quantum Messenger Mobile Chat: Drag-and-Drop File Sharing & Anti-Forensics */}
+              <motion.div
+                id="interactive-chat-preview"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <QuantumMessengerChatPreview />
+                </div>
+              </motion.div>
+
               {/* Feature Showcase (Free P2P vs Enterprise MDM) */}
               <motion.div 
                 id="app-showcase"
@@ -177,6 +200,16 @@ export default function App() {
                 <AppFeatureShowcase />
               </motion.div>
 
+              {/* Competitive Security Matrix: Q-CRYPT vs Signal vs Telegram vs WhatsApp */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <CompetitiveSecurityMatrix />
+              </motion.div>
+
               {/* Security Comparison Table */}
               <motion.div
                 initial="hidden"
@@ -185,6 +218,26 @@ export default function App() {
                 variants={sectionVariants}
               >
                 <SecurityComparisonTable />
+              </motion.div>
+
+              {/* Quantum Threat Modeling: Real-Time Time-to-Crack Estimation & Lattice Hardness */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <QuantumThreatModeling />
+              </motion.div>
+
+              {/* Lattice-Based Cryptography (NIST FIPS 203/204) vs. Classical RSA/ECC */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <LatticeVsClassicalSection />
               </motion.div>
 
               {/* Real-time Quantum Security Threat Map & Active Encrypted Tunnels */}
@@ -201,6 +254,36 @@ export default function App() {
                 </div>
               </motion.div>
 
+              {/* Anonymized Multi-Hop Quantum Mixnet Routing */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <AnonymizedRouting />
+              </motion.div>
+
+              {/* High-Precision Quantum Clocks, Mosca's Law Countdown & Multi-Timezone Command Nodes */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <QuantumClocksDashboard />
+              </motion.div>
+
+              {/* ANSSI, Loi de Programmation Militaire (LPM 2024-2030) & Directive NIS2 European Compliance Section */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <AnssiNis2FranceSection />
+              </motion.div>
+
               {/* Third-Party Security Audit & Certification Status */}
               <motion.div
                 initial="hidden"
@@ -209,6 +292,36 @@ export default function App() {
                 variants={sectionVariants}
               >
                 <SecurityAuditStatus />
+              </motion.div>
+
+              {/* Enterprise Post-Quantum PKI & Certificate Lifecycle Manager */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <EnterprisePkiSection />
+              </motion.div>
+
+              {/* FIPS 140-3 Hardware Security Module & Real-Time Enclave Telemetry */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <HardwareSecurityModule />
+              </motion.div>
+
+              {/* FIPS 140-3 HSM Hardware Attestation & Remote Verification */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <HsmHardwareAttestation />
               </motion.div>
 
               {/* 10 Security Audits Trail & Technical Verification Reports */}

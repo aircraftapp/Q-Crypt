@@ -62,14 +62,14 @@ export const RealTimeTransparencyLedger: React.FC = () => {
 
     if (isUnverifiedEvent) {
       showToast(
-        '⚡ SECURITY PULSE ALERT: UNVERIFIED HANDSHAKE SIGNATURE',
-        `Unverified handshake signature detected on Session ${selectedSession}! Executing automatic ML-KEM-1024 ephemeral key auto-ratchet protocol...`,
+        'Handshake Re-ratcheted',
+        `Rotated ephemeral keys for ${selectedSession}.`,
         'warning'
       );
     } else {
       showToast(
-        '🛡️ SECURITY PULSE: SIGNATURE IMMUTABLY SEALED',
-        `New quantum handshake signature verified for ${selectedSession} on Titan M2 Enclave. Hardware attestation 100% valid.`,
+        'Signature Verified',
+        `Hardware attestation confirmed for ${selectedSession}.`,
         'success'
       );
     }
@@ -182,18 +182,8 @@ export const RealTimeTransparencyLedger: React.FC = () => {
       const nowStr = new Date().toLocaleTimeString();
       setLastSyncTime(nowStr);
 
-      if (isSecurityPulseActive) {
-        showToast(
-          '⚡ SECURITY PULSE: NEW HANDSHAKE SIGNATURE',
-          `Monitored live ledger: New ${newLogData.pqcAlgorithm} handshake signature logged for session ${newLogData.sessionId} on ${newLogData.enclaveId}.`,
-          'info'
-        );
-      }
-
       if (isManual) {
-        showToast('Firestore Synced!', 'Fetched latest immutable PQC handshake logs from database.', 'success');
-      } else {
-        showToast('Auto-Refreshed (30s)', 'Fetched latest immutable logs from Firestore.', 'info');
+        showToast('Ledger Synced', 'Updated with latest handshake records.', 'success');
       }
     } catch (err) {
       console.warn('Firestore sync warning:', err);
@@ -235,7 +225,7 @@ export const RealTimeTransparencyLedger: React.FC = () => {
     if (devAccessKey.trim() === 'DEV-KEY-QCRYPT-2026' || devAccessKey.trim().toLowerCase() === 'developer' || devAccessKey.trim().toLowerCase() === 'admin') {
       setIsDevAuthorized(true);
       setShowAuthModal(false);
-      showToast('Developer Authorized!', 'Unlocked raw secrets, cryptographic debug telemetry, and developer logs.', 'success');
+      showToast('Developer Mode Unlocked', 'Access granted to debug telemetry.', 'success');
     } else {
       setAuthError('Invalid Developer Authorization Key. Please use: DEV-KEY-QCRYPT-2026');
     }
@@ -279,14 +269,14 @@ export const RealTimeTransparencyLedger: React.FC = () => {
     link.click();
     document.body.removeChild(link);
 
-    showToast('CSV Export Complete', 'Downloaded Real-Time Transparency Ledger as CSV.', 'success');
+    showToast('CSV Exported', 'Downloaded ledger records.', 'success');
   };
 
   // Export Signed PDF Compliance Document
   const exportSignedPdf = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      showToast('Pop-up Blocked', 'Please allow pop-ups to print/export the signed PDF compliance report.', 'warning');
+      showToast('Pop-up Blocked', 'Please allow pop-ups to print compliance report.', 'warning');
       return;
     }
 
@@ -434,7 +424,7 @@ export const RealTimeTransparencyLedger: React.FC = () => {
 
     printWindow.document.write(htmlContent);
     printWindow.document.close();
-    showToast('Signed PDF Generated', 'Opened print/save dialog for signed compliance document.', 'success');
+    showToast('Report Generated', 'Compliance document ready to save.', 'success');
   };
 
   return (
@@ -477,8 +467,8 @@ export const RealTimeTransparencyLedger: React.FC = () => {
                   const nextState = !isSecurityPulseActive;
                   setIsSecurityPulseActive(nextState);
                   showToast(
-                    nextState ? 'Security Pulse Active' : 'Security Pulse Paused',
-                    nextState ? 'Monitoring Real-Time Transparency Ledger for new or unverified handshake signatures.' : 'Pulse monitoring suspended.',
+                    nextState ? 'Security Pulse Enabled' : 'Security Pulse Paused',
+                    undefined,
                     'info'
                   );
                 }}

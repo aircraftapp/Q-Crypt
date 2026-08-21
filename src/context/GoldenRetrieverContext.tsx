@@ -24,17 +24,9 @@ export const GoldenRetrieverProvider: React.FC<{ children: ReactNode }> = ({ chi
     setIsGoldenMode((prev) => {
       const next = !prev;
       if (next) {
-        showToast(
-          'WOOF WOOF! 🐕 Golden Retriever Mode ACTIVE!',
-          'Tail wagging at maximum speed! All quantum encryption features now explained with balls, treats & best friends! 🎾🦴',
-          'success'
-        );
+        showToast('Golden Mode Active', undefined, 'success');
       } else {
-        showToast(
-          'CISO Executive Mode Restored 👔',
-          'Switched back to standard enterprise post-quantum cryptographic terminology.',
-          'info'
-        );
+        showToast('Executive Mode', undefined, 'info');
       }
       return next;
     });

@@ -130,11 +130,7 @@ Technical Assessment:
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    showToast(
-      'Academic Summary Downloaded 🎓',
-      'Saved Q-CRYPT PQC Academic Review Summary for Thunderbird & École Hexagone Versailles.',
-      'success'
-    );
+    showToast('Document Downloaded', 'Academic review summary saved.', 'success');
   };
 
   return (
