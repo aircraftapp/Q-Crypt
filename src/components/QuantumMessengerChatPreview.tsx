@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useToast } from './Toast';
 import { useLanguage } from '../context/LanguageContext';
+import { PreflightSecurityChecklist } from './PreflightSecurityChecklist';
 
 export interface ChatMediaAttachment {
   id: string;
@@ -93,6 +94,11 @@ export const QuantumMessengerChatPreview: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   
+  // Pre-flight Security Checklist & Tamper History Enrollment State
+  const [isPreflightModalOpen, setIsPreflightModalOpen] = useState(false);
+  const [isPreflightVerified, setIsPreflightVerified] = useState(true);
+  const [tamperAttestationToken, setTamperAttestationToken] = useState('TAMPER-ROTH-2026-9941');
+
   // File Upload & Sanitization Modal State
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [selectedFileForUpload, setSelectedFileForUpload] = useState<{
@@ -507,10 +513,26 @@ export const QuantumMessengerChatPreview: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <button
+            onClick={() => setIsPreflightModalOpen(true)}
+            className={`px-3.5 py-2.5 rounded-xl border text-xs font-mono font-bold flex items-center space-x-2 transition-all cursor-pointer shadow-md ${
+              isPreflightVerified
+                ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50 hover:bg-emerald-900/80 shadow-emerald-950/50'
+                : 'bg-amber-950/80 text-amber-300 border-amber-500/50 hover:bg-amber-900/80 shadow-amber-950/50 animate-pulse'
+            }`}
+          >
+            <ShieldCheck className={`w-4 h-4 ${isPreflightVerified ? 'text-emerald-400' : 'text-amber-400'}`} />
+            <span>
+              {isPreflightVerified 
+                ? (isFr ? 'Contrôle Pré-Vol : Validé ✓' : 'Pre-Flight: Verified ✓')
+                : (isFr ? 'Contrôle Pré-Vol Requis ⚠' : 'Run Pre-Flight Checklist ⚠')}
+            </span>
+          </button>
+
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-mono font-bold flex items-center space-x-2 transition-all shadow-lg shadow-cyan-500/20"
+            className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-mono font-bold flex items-center space-x-2 transition-all shadow-lg shadow-cyan-500/20 cursor-pointer"
           >
             <Upload className="w-4 h-4" />
             <span>{isFr ? 'Téléverser & Chiffrer un Fichier' : 'Upload & Encrypt File'}</span>
@@ -549,6 +571,32 @@ export const QuantumMessengerChatPreview: React.FC = () => {
               <Cpu className="w-3 h-3 text-cyan-400" />
               <span>{isFr ? 'NIST ML-KEM-1024 ACTIF' : 'NIST ML-KEM-1024 ACTIVE'}</span>
             </div>
+          </div>
+
+          {/* Pre-Flight Security Status & Tamper Log Attestation Banner */}
+          <div className={`mb-3 p-2.5 rounded-xl border flex items-center justify-between gap-2 text-[11px] font-mono transition-all ${
+            isPreflightVerified
+              ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
+              : 'bg-amber-950/40 border-amber-500/40 text-amber-300'
+          }`}>
+            <div className="flex items-center space-x-2 truncate">
+              {isPreflightVerified ? (
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+              )}
+              <span className="truncate">
+                {isPreflightVerified 
+                  ? (isFr ? `Enclave Matérielle Attestée • Registre : ${tamperAttestationToken}` : `Hardware Enclave Attested • Tamper Log: ${tamperAttestationToken}`)
+                  : (isFr ? 'Contrôle Pré-Vol Incomplet : Enrôlement au registre requis' : 'Pre-Flight Pending: Hardware keystore & tamper enrollment required')}
+              </span>
+            </div>
+            <button
+              onClick={() => setIsPreflightModalOpen(true)}
+              className="px-2 py-0.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-[10px] shrink-0 font-bold cursor-pointer transition-colors"
+            >
+              {isPreflightVerified ? (isFr ? 'Auditer' : 'Audit') : (isFr ? 'Vérifier' : 'Verify')}
+            </button>
           </div>
 
           {/* Quick Preset Attachment Bar */}
@@ -1069,6 +1117,18 @@ export const QuantumMessengerChatPreview: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Pre-Flight Security Checklist Modal */}
+      <PreflightSecurityChecklist
+        isOpen={isPreflightModalOpen}
+        onClose={() => setIsPreflightModalOpen(false)}
+        isEnrolled={isPreflightVerified}
+        onEnrollmentComplete={(attestationToken) => {
+          setIsPreflightVerified(true);
+          setTamperAttestationToken(attestationToken);
+          setIsPreflightModalOpen(false);
+        }}
+      />
 
     </div>
   );

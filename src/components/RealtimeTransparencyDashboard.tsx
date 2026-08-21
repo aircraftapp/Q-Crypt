@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { crmService } from '../services/crmService';
 import { useToast } from './Toast';
+import { useLanguage } from '../context/LanguageContext';
 
 export interface CryptoBenchmarkPoint {
   id: number;
@@ -65,6 +66,7 @@ export interface MeshTelemetryNode {
 
 export const RealtimeTransparencyDashboard: React.FC = () => {
   const { showToast } = useToast();
+  const { t } = useLanguage();
 
   // Firestore Real Records State
   const [firestoreTrialCount, setFirestoreTrialCount] = useState<number>(0);
@@ -604,7 +606,7 @@ export const RealtimeTransparencyDashboard: React.FC = () => {
 
           <div>
             <div className="flex items-center space-x-2.5 flex-wrap gap-y-1">
-              <h3 className="text-xl font-bold text-white tracking-tight">Real-Time Cryptographic Telemetry</h3>
+              <h3 className="text-xl font-bold text-white tracking-tight">{t('realtimeDashboard.title')}</h3>
               
               <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-700/80 text-[10px] font-mono font-bold flex items-center gap-1.5">
                 <motion.span 
@@ -612,7 +614,7 @@ export const RealtimeTransparencyDashboard: React.FC = () => {
                   animate={{ scale: [1, 1.5, 1], opacity: [0.6, 1, 0.6] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
                 />
-                AUTHENTIC LOCAL WEBCRYPTO BENCHMARK
+                {t('realtimeDashboard.badge')}
               </span>
 
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-mono font-bold flex items-center gap-1">
@@ -621,7 +623,7 @@ export const RealtimeTransparencyDashboard: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-slate-400 font-mono mt-1">
-              Deterministic, real-time measurements computed directly on your host CPU via Web Crypto API & NIST lattice benchmarks.
+              {t('realtimeDashboard.subtitle')}
             </p>
           </div>
         </div>

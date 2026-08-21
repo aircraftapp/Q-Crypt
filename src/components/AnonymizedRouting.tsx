@@ -6,6 +6,7 @@ import {
   Terminal, Copy, Download
 } from 'lucide-react';
 import { useToast } from './Toast';
+import { useLanguage } from '../context/LanguageContext';
 
 interface MixnetHop {
   id: string;
@@ -21,6 +22,7 @@ interface MixnetHop {
 
 export const AnonymizedRouting: React.FC = () => {
   const { showToast } = useToast();
+  const { t } = useLanguage();
   
   // Mixnet Circuit Configuration
   const [hops, setHops] = useState<MixnetHop[]>([
@@ -163,13 +165,13 @@ export const AnonymizedRouting: React.FC = () => {
           <div className="space-y-3 max-w-3xl">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-bold">
               <Network className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
-              <span>POST-QUANTUM SPHINX ONION ROUTING & MIXNET</span>
+              <span>{t('anonymizedRouting.badge')}</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight font-sans">
-              Anonymized Multi-Hop Quantum Tunnels
+              {t('anonymizedRouting.title')}
             </h2>
             <p className="text-sm sm:text-base text-slate-400 font-mono leading-relaxed">
-              Eliminating traffic pattern analysis, ISP timing correlation, and metadata harvesting through non-persistent ephemeral quantum circuits and Poisson delay mixing.
+              {t('anonymizedRouting.subtitle')}
             </p>
           </div>
 

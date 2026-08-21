@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { crmService, PqcHandshakeLogDoc } from '../services/crmService';
 import { useToast } from './Toast';
+import { useLanguage } from '../context/LanguageContext';
 
 export interface HandshakeLogEntry {
   id: string;
@@ -47,6 +48,7 @@ export interface HandshakeLogEntry {
 
 export const RealTimeTransparencyLedger: React.FC = () => {
   const { showToast } = useToast();
+  const { t } = useLanguage();
 
   // Security Pulse Toast Notification State
   const [isSecurityPulseActive, setIsSecurityPulseActive] = useState<boolean>(true);
@@ -445,14 +447,14 @@ export const RealTimeTransparencyLedger: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <span className="text-xs font-mono font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Real-Time Immutable Transparency Ledger</span>
+                  <span>{t('transparencyLedger.badge')}</span>
                 </span>
                 <span className="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-mono font-bold">
                   FIRESTORE LIVE
                 </span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1">
-                Quantum Handshake Logs & Immutable Verification Hashes
+                {t('transparencyLedger.title')}
               </h2>
             </div>
           </div>

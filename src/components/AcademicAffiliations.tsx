@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Award, BookOpen, ChevronLeft, ChevronRight, Download, ExternalLink, GraduationCap, ShieldCheck, Sparkles, Building2, CheckCircle2, FileText, Star } from 'lucide-react';
 import { useToast } from './Toast';
 import { useGoldenRetriever } from '../context/GoldenRetrieverContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export interface AcademicReview {
   id: string;
@@ -62,6 +63,7 @@ const ACADEMIC_REVIEWS: AcademicReview[] = [
 export const AcademicAffiliations: React.FC = () => {
   const { showToast } = useToast();
   const { isGoldenMode } = useGoldenRetriever();
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const activeReview = ACADEMIC_REVIEWS[currentIndex];
@@ -145,15 +147,15 @@ Technical Assessment:
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold">
             <GraduationCap className="w-4 h-4 text-cyan-400" />
-            <span>ACADEMIC AFFILIATIONS & PEER REVIEW</span>
+            <span>{t('academicAffiliations.badge')}</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Validated by Global Academic & Cyber Sovereignty Leaders
+            {t('academicAffiliations.title')}
           </h2>
 
           <p className="text-sm text-slate-300 font-normal leading-relaxed">
-            Q-CRYPT’s post-quantum architecture is rigorously evaluated by leading European cybersecurity institutes and international technological management research programs.
+            {t('academicAffiliations.subtitle')}
           </p>
         </div>
 

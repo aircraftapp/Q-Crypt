@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ShieldCheck, Lock, Award, CheckCircle2, XCircle, Copy, Check, Download, FileText, Cpu, Key, ArrowRight, QrCode, Camera, Smartphone, Scan, X, RefreshCw, Sparkles, Zap, History, Trash2, Clock, AlertTriangle, Upload, FileCheck, Sliders, Activity } from 'lucide-react';
 import { useToast } from './Toast';
+import { useLanguage } from '../context/LanguageContext';
 
 export interface CryptographicProof {
   sessionId: string;
@@ -58,6 +59,7 @@ const getInitialVerificationHistory = (): CryptographicProof[] => {
 
 export const PublicVerificationPortal: React.FC = () => {
   const { showToast } = useToast();
+  const { t } = useLanguage();
   const [inputSessionId, setInputSessionId] = useState('QCRYPT-SESS-99201');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationHistory, setVerificationHistory] = useState<CryptographicProof[]>(getInitialVerificationHistory);
@@ -359,13 +361,13 @@ export const PublicVerificationPortal: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="text-xl font-bold text-white tracking-tight">Public Session Verification Portal</h3>
+              <h3 className="text-xl font-bold text-white tracking-tight">{t('publicVerification.title')}</h3>
               <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px] font-mono font-bold">
-                ZERO-KNOWLEDGE PROOF
+                {t('publicVerification.badge')}
               </span>
             </div>
             <p className="text-xs text-slate-400 font-mono mt-0.5">
-              Input any encrypted session ID or scan an Android app QR code to instantly verify post-quantum protection.
+              {t('publicVerification.subtitle')}
             </p>
           </div>
         </div>

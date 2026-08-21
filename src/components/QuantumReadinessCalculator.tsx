@@ -4,6 +4,7 @@ import {
   CheckCircle2, Download, Copy, RefreshCcw, Building2, Cpu, HardDrive, Lock, FileText, PieChart
 } from 'lucide-react';
 import { useToast } from './Toast';
+import { useLanguage } from '../context/LanguageContext';
 import { QuantumRiskD3Dashboard } from './QuantumRiskD3Dashboard';
 import { QuantumThreatAssessment } from './QuantumThreatAssessment';
 
@@ -23,6 +24,7 @@ interface Question {
 
 export const QuantumReadinessCalculator: React.FC = () => {
   const { showToast } = useToast();
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [isCalculated, setIsCalculated] = useState<boolean>(false);
@@ -138,15 +140,15 @@ Generated via Q-CRYPT Security Architecture Portal`;
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-cyan-950/90 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold">
             <Calculator className="w-4 h-4 text-cyan-400" />
-            <span>ORGANIZATIONAL ASSESSMENT TOOL</span>
+            <span>{t('quantumReadiness.badge')}</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight font-sans">
-            Post-Quantum Readiness Calculator
+            {t('quantumReadiness.title')}
           </h2>
 
           <p className="text-sm sm:text-base text-slate-300 font-sans leading-relaxed">
-            Evaluate your infrastructure's exposure to <strong className="text-rose-400">Store Now, Decrypt Later (SNDL)</strong> threat vectors and receive a tailored Q-CRYPT migration strategy.
+            {t('quantumReadiness.subtitle')}
           </p>
         </div>
 

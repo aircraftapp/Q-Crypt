@@ -9,7 +9,7 @@ import {
   FileCheck, Binary, CheckCheck, ShieldX, Terminal, Filter, FileText,
   Printer, Award, FileBadge, QrCode, KeyRound, Fingerprint, Shuffle,
   Crosshair, CircleDot, ChevronRight, Eye, ShieldQuestion, HelpCircle,
-  FileCode, BellRing
+  FileCode, BellRing, Power, Battery, BatteryLow, BatteryWarning, Timer, X
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -50,6 +50,16 @@ import { HsmSecurityStressTestModal } from './HsmSecurityStressTestModal';
 import { HsmTamperHistoryView } from './HsmTamperHistoryView';
 import { HsmKeyLifecycleManager } from './HsmKeyLifecycleManager';
 import { HsmEntropyAnalysisTab } from './HsmEntropyAnalysisTab';
+import { HsmInactivityLockModal } from './HsmInactivityLockModal';
+import { HsmSecuritySelfTestSuite } from './HsmSecuritySelfTestSuite';
+import { QuantumAdversarySimulator } from './QuantumAdversarySimulator';
+import { HsmSelectionGuide } from './HsmSelectionGuide';
+import { HsmSecurityBaselineManager } from './HsmSecurityBaselineManager';
+import { HsmSecurityHardeningAssistant } from './HsmSecurityHardeningAssistant';
+import { HsmApiVolumeVisualizer } from './HsmApiVolumeVisualizer';
+import { HsmThermalMonitor } from './HsmThermalMonitor';
+import { HsmFirmwareIntegritySection } from './HsmFirmwareIntegritySection';
+import { generateHsmSecurityBaselinePdf } from '../utils/generateHsmSecurityBaselinePdf';
 
 interface LatencyDataPoint {
   time: string;
@@ -75,6 +85,13 @@ export const HardwareSecurityModule: React.FC = () => {
   const [devices, setDevices] = useState<HsmDevice[]>(INITIAL_HSM_DEVICES);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('nitrokey-nethsm');
   const [activeTab, setActiveTab] = useState<
+    'adversary-simulator' |
+    'hsm-selection-guide' |
+    'self-test-suite' |
+    'security-baseline' |
+    'hardening-assistant' |
+    'api-volume' |
+    'thermal-monitor' |
     'open-source-hsm' | 
     'telemetry' | 
     'latency-monitor' |
@@ -89,10 +106,41 @@ export const HardwareSecurityModule: React.FC = () => {
     'firmware-integrity' | 
     'entropy-distribution' |
     'entropy-health'
-  >('open-source-hsm');
+  >('adversary-simulator');
 
   const [isStressTestModalOpen, setIsStressTestModalOpen] = useState<boolean>(false);
   
+  // High Load Simulation for Enclave Pulse
+  const [isHighLoadSimulated, setIsHighLoadSimulated] = useState<boolean>(false);
+
+  // Session Inactivity Timeout State
+  const [inactivityTimeoutMinutes, setInactivityTimeoutMinutes] = useState<number>(5);
+  const [secondsRemainingBeforeLock, setSecondsRemainingBeforeLock] = useState<number>(300);
+  const [isEnclaveLocked, setIsEnclaveLocked] = useState<boolean>(false);
+
+  // Emergency Power-Off & Ephemeral Volatile Key Shred State
+  const [isEmergencyPowerOffArmed, setIsEmergencyPowerOffArmed] = useState<boolean>(true);
+  const [simulatedBatteryLevel, setSimulatedBatteryLevel] = useState<number>(86);
+  const [isPowerShredModalOpen, setIsPowerShredModalOpen] = useState<boolean>(false);
+  const [isVolatileShredded, setIsVolatileShredded] = useState<boolean>(false);
+  const [isExecutingPowerShred, setIsExecutingPowerShred] = useState<boolean>(false);
+  const [ephemeralVolatileSlots, setEphemeralVolatileSlots] = useState<{
+    address: string;
+    name: string;
+    lifetime: string;
+    dataHex: string;
+    isShredded: boolean;
+  }>([
+    { address: '0x00FF80', name: 'ML-KEM-1024 Ephemeral Shared Secret (SS)', lifetime: 'Volatile SRAM', dataHex: 'c3f19a08e2b744d901a884ef', isShredded: false },
+    { address: '0x00FFA0', name: 'AES-256-GCM Ephemeral Ratchet Key (EK)', lifetime: 'Volatile SRAM', dataHex: '7d8e209ab410fc93041938bc', isShredded: false },
+    { address: '0x00FFC0', name: 'Kyber NTT Decapsulation Scratchpad', lifetime: 'Volatile SRAM', dataHex: '55aa112233448899bbccddee', isShredded: false },
+    { address: '0x00FFE0', name: 'FIDO2 Biometric Session Assertion Token', lifetime: 'Volatile SRAM', dataHex: '9900aabbccddeeff11223344', isShredded: false },
+  ]);
+  const [emergencyShredLogs, setEmergencyShredLogs] = useState<string[]>([
+    '[INIT] Hardware Power-Loss Fast-Path capacitor armed (FIPS 140-3 §4.10).',
+    '[STANDBY] Battery level monitoring active. Low threshold set to <= 5%.'
+  ]);
+
   const [keys, setKeys] = useState<HsmKeyObject[]>(INITIAL_HSM_KEYS);
   const [searchKeyQuery, setSearchKeyQuery] = useState('');
   const [selectedKeyId, setSelectedKeyId] = useState<string>('key-pqc-root-01');
@@ -465,6 +513,67 @@ export const HardwareSecurityModule: React.FC = () => {
     a.click();
     URL.revokeObjectURL(url);
     showToast('Manifest Exported', 'Downloaded signed cryptographic firmware integrity manifest.', 'success');
+  };
+
+  const handleDownloadActiveSecurityBaselinePdf = () => {
+    try {
+      const baselinePolicy = {
+        schemaVersion: '2026.1-FIPS140-3',
+        baselineId: `BASELINE-${selectedDevice.id.toUpperCase()}-${new Date().toISOString().slice(0, 10)}`,
+        generatedTimestamp: new Date().toISOString(),
+        device: {
+          id: selectedDevice.id,
+          name: selectedDevice.name,
+          vendor: selectedDevice.vendor,
+          model: selectedDevice.type,
+          fipsCertificationLevel: selectedDevice.fipsLevel,
+          fipsCertificateNumber: selectedDevice.fipsCertificateNumber,
+          activeFirmwareVersion: selectedDevice.firmware,
+          firmwareSha256Digest: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+          hardwareRootOfTrust: 'Titan M2 / Knox StrongBox Physical Silicon Die',
+          tamperMeshStatus: selectedDevice.tamperMeshIntact ? 'ACTIVE_ARMED' : 'BREACH_DETECTED'
+        },
+        keyStrengthSettings: {
+          keyEncapsulationMechanism: 'ML-KEM-1024 (Kyber-1024, NIST FIPS 203)',
+          kemSecurityBits: 256,
+          digitalSignatureAlgorithm: 'ML-DSA-87 (Dilithium-5, NIST FIPS 204)',
+          dsaSecurityBits: 256,
+          symmetricCipher: 'AES-256-GCM Enclave-Wrapped',
+          symmetricKeyBits: 256,
+          hashAndDigestStandard: 'SHA-384 & SHA3-512',
+          keyExtractionPolicy: 'NEVER_EXTRACTABLE_HARDWARE_BOUND',
+          mOfNQuorumRequired: '2-of-3 Multi-Party Cryptographic Authorization',
+          zeroizationTriggerLatencyUs: 2.4
+        },
+        sideChannelMitigations: {
+          laserFaultInjectionGuard: true,
+          differentialPowerAnalysisShielding: true,
+          thermalPanicShutdownThresholdC: 75,
+          clockGlitchInterlockArmed: true,
+          jitterToleranceMs: 0.15
+        },
+        entropyHealthThresholds: {
+          minimumEntropyPerBit: 7.994,
+          continuousAptRctChecks: true,
+          noiseSourceRedundancy: 'Dual Zener Avalanche Diode & Ring Oscillator Array',
+          shannonEntropyBaseline: 7.998
+        },
+        osPrerequisitesEnforced: {
+          usbDebuggingDisabled: true,
+          biometricLockoutThreshold: 3,
+          verifiedBootGreenState: true,
+          memoryTaggingStrictMode: true,
+          flagSecureScreenCaptureBlocked: true,
+          inactivityLockTimeoutSec: inactivityTimeoutMinutes * 60 || 300
+        },
+        baselineFingerprintSha256: '4d8a1f73b62c90e5421a8f93e41b2c6d7e8f0a1b2c3d4e5f6a7b8c9d0e1f2a3b'
+      };
+      generateHsmSecurityBaselinePdf(baselinePolicy);
+      showToast('Security Baseline PDF Downloaded', `Exported human-readable FIPS 140-3 baseline report for ${selectedDevice.name}`, 'success');
+    } catch (err) {
+      console.error('Failed to download baseline PDF:', err);
+      showToast('Export Error', 'Unable to generate security baseline PDF report.', 'error');
+    }
   };
 
   // Real-time Heartbeat & Recharts Latency Simulator
@@ -1016,6 +1125,85 @@ export const HardwareSecurityModule: React.FC = () => {
     );
   };
 
+  // Heavy Cryptographic Processing load calculation for Enclave Pulse
+  const isHeavyCryptoProcessing = isHighLoadSimulated || isSigning || isStressTestModalOpen || liveOpsPerSec > 6000;
+
+  // Session Inactivity Timer & Activity Listener
+  useEffect(() => {
+    if (inactivityTimeoutMinutes <= 0) return; // Disabled
+
+    const interval = setInterval(() => {
+      setSecondsRemainingBeforeLock(prev => {
+        if (prev <= 1) {
+          setIsEnclaveLocked(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    const resetInactivity = () => {
+      if (!isEnclaveLocked) {
+        setSecondsRemainingBeforeLock(inactivityTimeoutMinutes * 60);
+      }
+    };
+
+    window.addEventListener('mousemove', resetInactivity);
+    window.addEventListener('keydown', resetInactivity);
+    window.addEventListener('click', resetInactivity);
+    window.addEventListener('scroll', resetInactivity);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('mousemove', resetInactivity);
+      window.removeEventListener('keydown', resetInactivity);
+      window.removeEventListener('click', resetInactivity);
+      window.removeEventListener('scroll', resetInactivity);
+    };
+  }, [inactivityTimeoutMinutes, isEnclaveLocked]);
+
+  // Battery monitoring & automatic Emergency Power-Off trigger
+  const handleTriggerEmergencyPowerCut = (targetBattery: number = 0) => {
+    setIsExecutingPowerShred(true);
+    setSimulatedBatteryLevel(targetBattery);
+
+    const newLogs = [
+      `[0.00ms] CRITICAL EVENT: ${targetBattery <= 5 ? `Low Battery Threshold Exceeded (${targetBattery}%)` : 'Host Power Cutoff / Emergency Shutdown'}`,
+      '[0.18ms] VOLTAGE DISCHARGE: Ephemeral SRAM crowbar circuit grounded at 12ns.',
+      '[0.52ms] MEMORY SHRED: Zeroizing volatile session keys across 4 SRAM buffers...',
+      '[0.95ms] FIPS 140-3 VERIFICATION: All 4 ephemeral session secrets purged with 0x00 pattern.',
+      '[1.18ms] HARDWARE PERSISTENCE: Non-volatile Root Keys (ML-DSA-87) safe in secure tamper flash.'
+    ];
+
+    setTimeout(() => {
+      setEphemeralVolatileSlots(prev => prev.map(s => ({
+        ...s,
+        dataHex: '0x000000000000000000000000 [PURGED]',
+        isShredded: true
+      })));
+      setIsVolatileShredded(true);
+      setIsExecutingPowerShred(false);
+      setEmergencyShredLogs(newLogs);
+      showToast(
+        'Emergency Power-Off Shred Complete',
+        'Ephemeral volatile session keys shredded in 1.18ms upon power-off detection.',
+        'error'
+      );
+    }, 600);
+  };
+
+  const handleRestoreEphemeralVolatileKeys = () => {
+    setEphemeralVolatileSlots([
+      { address: '0x00FF80', name: 'ML-KEM-1024 Ephemeral Shared Secret (SS)', lifetime: 'Volatile SRAM', dataHex: 'c3f19a08e2b744d901a884ef', isShredded: false },
+      { address: '0x00FFA0', name: 'AES-256-GCM Ephemeral Ratchet Key (EK)', lifetime: 'Volatile SRAM', dataHex: '7d8e209ab410fc93041938bc', isShredded: false },
+      { address: '0x00FFC0', name: 'Kyber NTT Decapsulation Scratchpad', lifetime: 'Volatile SRAM', dataHex: '55aa112233448899bbccddee', isShredded: false },
+      { address: '0x00FFE0', name: 'FIDO2 Biometric Session Assertion Token', lifetime: 'Volatile SRAM', dataHex: '9900aabbccddeeff11223344', isShredded: false },
+    ]);
+    setSimulatedBatteryLevel(86);
+    setIsVolatileShredded(false);
+    showToast('Ephemeral Session Keys Re-Initialized', 'Fresh post-quantum ratchet session initialized.', 'success');
+  };
+
   // Continuous Sampling Timer
   useEffect(() => {
     if (!isLiveEntropySampling || activeTab !== 'entropy-distribution') return;
@@ -1031,7 +1219,7 @@ export const HardwareSecurityModule: React.FC = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(6,182,212,0.12),rgba(255,255,255,0))] pointer-events-none" />
       <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
 
         {/* Section Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
@@ -1048,65 +1236,53 @@ export const HardwareSecurityModule: React.FC = () => {
             </p>
           </div>
 
-          {/* Action Toolbar: Run Self-Test, Physical HSM Audit Certificate, Zeroize Keys & Status Badge */}
+          {/* Top Enclave Telemetry & Pulse Bar */}
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              id="security-stress-test-btn"
-              onClick={() => setIsStressTestModalOpen(true)}
-              className="inline-flex items-center space-x-2 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-mono text-xs font-black transition-all shadow-lg shadow-amber-950/60 border border-amber-400/60 group cursor-pointer"
-              title="Simulates high-frequency PQC signature requests under peak enclave stress"
+            
+            {/* RHYTHMIC ENCLAVE PULSE ANIMATION HEADER BADGE */}
+            <div 
+              onClick={() => setIsHighLoadSimulated(prev => !prev)}
+              className={`flex items-center space-x-3 px-4 py-2.5 rounded-2xl border transition-all cursor-pointer select-none relative overflow-hidden group ${
+                isHeavyCryptoProcessing
+                  ? 'bg-amber-950/80 border-amber-500/80 shadow-lg shadow-amber-950/80 ring-1 ring-amber-500/50'
+                  : 'bg-slate-900/90 border-cyan-500/50 shadow-lg shadow-cyan-950/50 hover:border-cyan-400'
+              }`}
+              title="Click to toggle simulated Heavy Crypto Load & observe Enclave Pulse color/tempo shift"
             >
-              <Zap className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform animate-pulse" />
-              <span>Security Stress Test</span>
-            </button>
+              {/* Outer rhythmic aura */}
+              <div className="relative flex items-center justify-center">
+                <span className={`flex h-4 w-4 relative`}>
+                  <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                    isHeavyCryptoProcessing 
+                      ? 'bg-amber-400 animate-ping duration-700' 
+                      : 'bg-cyan-400 animate-ping duration-1500'
+                  }`} />
+                  <span className={`relative inline-flex rounded-full h-4 w-4 ${
+                    isHeavyCryptoProcessing ? 'bg-amber-500 shadow-[0_0_12px_#f59e0b]' : 'bg-cyan-400 shadow-[0_0_12px_#22d3ee]'
+                  }`} />
+                </span>
+              </div>
 
-            <button
-              onClick={handleRunSelfTest}
-              disabled={isSelfTestRunning}
-              className="inline-flex items-center space-x-2 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-mono text-xs font-bold transition-all shadow-lg shadow-cyan-950/60 border border-cyan-400/60 group disabled:opacity-50 cursor-pointer"
-              title="Runs FIPS 140-3 Power-On Self-Test (POST) diagnostic sequence"
-            >
-              <ShieldCheck className={`w-4 h-4 ${isSelfTestRunning ? 'animate-spin' : 'group-hover:scale-110 transition-transform'}`} />
-              <span>{isSelfTestRunning ? 'Running POST...' : 'Run Self-Test'}</span>
-            </button>
+              <div>
+                <div className="text-[10px] uppercase font-mono font-bold tracking-wider flex items-center gap-1.5">
+                  <span className={isHeavyCryptoProcessing ? 'text-amber-300 font-black' : 'text-cyan-300 font-bold'}>
+                    ENCLAVE PULSE
+                  </span>
+                  <span className="text-slate-500">•</span>
+                  <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${
+                    isHeavyCryptoProcessing ? 'bg-amber-900 text-amber-200 border border-amber-700' : 'bg-cyan-950 text-cyan-300'
+                  }`}>
+                    {isHeavyCryptoProcessing ? 'HEAVY LOAD (0.6s)' : 'NOMINAL (1.6s)'}
+                  </span>
+                </div>
+                <div className="text-xs font-mono font-bold text-white flex items-center gap-1">
+                  <span>{isHeavyCryptoProcessing ? 'Crypto Pipeline: Peak NTT Stress' : 'Silicon Heartbeat: 100% Active'}</span>
+                </div>
+              </div>
+            </div>
 
-            <button
-              onClick={handleOpenAuditCertModal}
-              className="inline-flex items-center space-x-2 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-mono text-xs font-bold transition-all shadow-lg shadow-black/60 border border-cyan-500/40 group cursor-pointer hover:border-cyan-400"
-              title="Generates a signed, high-contrast NIST FIPS 140-3 Physical HSM Security Audit Certificate"
-            >
-              <Award className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
-              <span>Physical HSM Audit Certificate</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('policy-export')}
-              className="inline-flex items-center space-x-2 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-purple-300 font-mono text-xs font-bold transition-all shadow-lg shadow-black/60 border border-purple-500/40 group cursor-pointer hover:border-purple-400"
-              title="Export enforced device security policies as a machine-readable JSON blob"
-            >
-              <FileCode className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
-              <span>Export Policies (JSON)</span>
-            </button>
-
-            <button
-              onClick={handleOpenZeroizeDialog}
-              className="inline-flex items-center space-x-2 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-mono text-xs font-bold transition-all shadow-lg shadow-red-950/60 border border-red-400/60 group cursor-pointer"
-              title="Opens multi-step zeroize security keys confirmation dialog requiring secondary auth token"
-            >
-              <Trash2 className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
-              <span>Zeroize Security Keys</span>
-            </button>
-
-            <button
-              onClick={handleSimulateTamperEvent}
-              className="inline-flex items-center space-x-2 px-3 py-2 sm:px-3.5 sm:py-3 rounded-2xl bg-red-950/80 hover:bg-red-900 text-red-300 font-mono text-xs font-bold transition-all border border-red-800/80 group cursor-pointer"
-              title="Simulates physical active mesh breach and triggers 4µs cryptographic key zeroization"
-            >
-              <ShieldAlert className="w-4 h-4 text-red-400 animate-pulse group-hover:scale-110 transition-transform" />
-              <span>Tamper Breach Sim</span>
-            </button>
-
-            <div className="flex items-center gap-3 bg-slate-900/90 border border-slate-800 p-3 rounded-2xl backdrop-blur-md">
+            {/* ENCLAVE STATUS */}
+            <div className="flex items-center gap-3 bg-slate-900/90 border border-slate-800 p-2.5 px-3.5 rounded-2xl backdrop-blur-md">
               <div className="relative">
                 <span className={`flex h-3.5 w-3.5 relative ${
                   selectedDevice.status === 'ONLINE' ? 'text-emerald-400' :
@@ -1133,7 +1309,132 @@ export const HardwareSecurityModule: React.FC = () => {
                 </div>
               </div>
             </div>
+
           </div>
+        </div>
+
+        {/* SECONDARY ACTION & SECURITY CONFIGURATION STRIP */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-3 p-3 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-md items-center font-mono text-xs">
+          
+          {/* Emergency Power-Off Toggle & Trigger Widget */}
+          <div className="xl:col-span-5 p-2 px-3 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-between gap-3">
+            <div className="flex items-center space-x-2.5">
+              <button
+                onClick={() => {
+                  setIsEmergencyPowerOffArmed(prev => !prev);
+                  showToast(
+                    !isEmergencyPowerOffArmed ? 'Emergency Power-Off Armed' : 'Emergency Power-Off Disarmed',
+                    !isEmergencyPowerOffArmed ? 'Auto volatile SRAM shred activated on <5% battery or forced shutdown.' : 'Auto power-off protection disabled.',
+                    !isEmergencyPowerOffArmed ? 'success' : 'warning'
+                  );
+                }}
+                className={`w-8 h-5 rounded-full transition-colors relative cursor-pointer ${
+                  isEmergencyPowerOffArmed ? 'bg-cyan-500' : 'bg-slate-700'
+                }`}
+                title="Toggle Emergency Power-Off volatile key shredder"
+              >
+                <div className={`w-3.5 h-3.5 rounded-full bg-slate-950 transition-transform absolute top-0.5 ${
+                  isEmergencyPowerOffArmed ? 'left-4' : 'left-0.5'
+                }`} />
+              </button>
+
+              <div>
+                <div className="text-[11px] font-bold text-white flex items-center space-x-1.5">
+                  <Power className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Emergency Power-Off Protection</span>
+                </div>
+                <div className="text-[10px] text-slate-400 flex items-center space-x-1">
+                  <span>Shred on &lt;5% Battery:</span>
+                  <span className={isEmergencyPowerOffArmed ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
+                    {isEmergencyPowerOffArmed ? 'ARMED' : 'DISARMED'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsPowerShredModalOpen(true)}
+              className="px-2.5 py-1.5 rounded-lg bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 text-[11px] font-bold flex items-center space-x-1 cursor-pointer"
+            >
+              <Battery className="w-3 h-3 text-cyan-400" />
+              <span>Test Shred ({simulatedBatteryLevel}%)</span>
+            </button>
+          </div>
+
+          {/* Session Inactivity Timeout Selector & Lock Button */}
+          <div className="xl:col-span-4 p-2 px-3 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-between gap-3">
+            <div className="flex items-center space-x-2">
+              <Timer className="w-4 h-4 text-purple-400" />
+              <div>
+                <div className="text-[10px] text-slate-400 uppercase font-bold">Inactivity Lock</div>
+                <div className="text-[11px] text-purple-300 font-bold">
+                  {secondsRemainingBeforeLock > 0 ? (
+                    `${Math.floor(secondsRemainingBeforeLock / 60)}m ${secondsRemainingBeforeLock % 60}s remaining`
+                  ) : (
+                    'Enclave Locked'
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <select
+                value={inactivityTimeoutMinutes}
+                onChange={(e) => {
+                  const mins = parseInt(e.target.value, 10);
+                  setInactivityTimeoutMinutes(mins);
+                  setSecondsRemainingBeforeLock(mins * 60);
+                  showToast('Inactivity Timeout Updated', `Enclave will lock after ${mins} minutes of user inactivity.`, 'info');
+                }}
+                className="bg-slate-900 border border-slate-700 text-slate-200 rounded-lg px-2 py-1 text-[11px] font-mono cursor-pointer"
+              >
+                <option value={1}>1 Minute</option>
+                <option value={5}>5 Minutes (Default)</option>
+                <option value={15}>15 Minutes</option>
+                <option value={30}>30 Minutes</option>
+                <option value={0}>Disabled (Manual)</option>
+              </select>
+
+              <button
+                onClick={() => setIsEnclaveLocked(true)}
+                className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[10px] font-bold cursor-pointer"
+                title="Lock hardware enclave immediately"
+              >
+                Lock Now
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Action Toolbar Buttons */}
+          <div className="xl:col-span-4 flex flex-wrap items-center justify-end gap-2">
+            <button
+              id="download-security-baseline-btn"
+              onClick={handleDownloadActiveSecurityBaselinePdf}
+              className="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold text-[11px] flex items-center space-x-1.5 cursor-pointer shadow-md shadow-emerald-950/60"
+              title="Download human-readable NIST FIPS 140-3 Security Baseline PDF report"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Download Baseline (PDF)</span>
+            </button>
+
+            <button
+              id="security-stress-test-btn"
+              onClick={() => setIsStressTestModalOpen(true)}
+              className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] flex items-center space-x-1.5 cursor-pointer shadow-md shadow-amber-950"
+            >
+              <Zap className="w-3.5 h-3.5 text-slate-950" />
+              <span>Stress Test</span>
+            </button>
+
+            <button
+              onClick={handleOpenAuditCertModal}
+              className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 text-[11px] font-bold flex items-center space-x-1.5 cursor-pointer"
+            >
+              <Award className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Audit Cert</span>
+            </button>
+          </div>
+
         </div>
 
         {/* PHYSICAL TAMPER EVENT & ZEROIZE KEYS ANIMATION OVERLAY MODAL */}
@@ -1526,6 +1827,38 @@ export const HardwareSecurityModule: React.FC = () => {
               <span className="text-slate-400">Core Temp & Voltage:</span>
               <span className="text-white font-bold">{selectedDevice.temperatureC}°C • {selectedDevice.coreVoltageV}V</span>
             </div>
+
+            {/* Quick Action Navigation Buttons */}
+            <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+              <button
+                onClick={() => setActiveTab('security-baseline')}
+                className="p-2 rounded-xl bg-slate-950/80 hover:bg-cyan-950/50 border border-slate-800 hover:border-cyan-500/40 text-left text-slate-300 hover:text-cyan-300 transition-all cursor-pointer flex items-center space-x-1.5"
+              >
+                <FileCode className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <span className="truncate">Security Baseline (JSON)</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('hardening-assistant')}
+                className="p-2 rounded-xl bg-slate-950/80 hover:bg-cyan-950/50 border border-slate-800 hover:border-cyan-500/40 text-left text-slate-300 hover:text-cyan-300 transition-all cursor-pointer flex items-center space-x-1.5"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                <span className="truncate">Hardening Assistant</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('thermal-monitor')}
+                className="p-2 rounded-xl bg-slate-950/80 hover:bg-cyan-950/50 border border-slate-800 hover:border-cyan-500/40 text-left text-slate-300 hover:text-cyan-300 transition-all cursor-pointer flex items-center space-x-1.5"
+              >
+                <Flame className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                <span className="truncate">Thermal & Panic Scram</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('api-volume')}
+                className="p-2 rounded-xl bg-slate-950/80 hover:bg-cyan-950/50 border border-slate-800 hover:border-cyan-500/40 text-left text-slate-300 hover:text-cyan-300 transition-all cursor-pointer flex items-center space-x-1.5"
+              >
+                <BarChart2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="truncate">Daily API Volume</span>
+              </button>
+            </div>
           </div>
 
           {/* Recharts Real-Time Latency / Heartbeat Stability Chart */}
@@ -1625,6 +1958,14 @@ export const HardwareSecurityModule: React.FC = () => {
         <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-2 gap-4">
           <div className="flex flex-wrap items-center gap-2">
             {[
+              { id: 'adversary-simulator', label: 'Quantum Adversary Simulator (HNDL & News)', icon: Zap },
+              { id: 'hsm-selection-guide', label: 'HSM Selection Guide & FIPS 140-3', icon: HardDrive },
+              { id: 'self-test-suite', label: 'Security Self-Test Suite & HSM Guide', icon: ShieldCheck },
+              { id: 'security-baseline', label: 'Security Baseline (JSON & Drift)', icon: FileCode },
+              { id: 'hardening-assistant', label: 'Security Hardening Assistant (FIPS 140-3)', icon: SlidersHorizontal },
+              { id: 'api-volume', label: 'Daily API Call Volume (Recharts)', icon: BarChart2 },
+              { id: 'thermal-monitor', label: 'Thermal Monitoring & Panic Scram', icon: Flame },
+              { id: 'firmware-integrity', label: `Firmware Integrity & Public Registry (${firmwareLogs.length})`, icon: ShieldCheck },
               { id: 'open-source-hsm', label: 'Open-Source HSM & PKI Bridge', icon: Network },
               { id: 'telemetry', label: 'Hardware Architecture & Enclave', icon: HardDrive },
               { id: 'latency-monitor', label: 'Real-Time Latency Monitor (RTT)', icon: TrendingUp },
@@ -1638,7 +1979,6 @@ export const HardwareSecurityModule: React.FC = () => {
               { id: 'diagnostics', label: 'Internal Enclave Diagnostics', icon: Terminal },
               { id: 'policy-export', label: 'Security Policies (JSON)', icon: FileCode },
               { id: 'audit-logs', label: `Operation History Log (${opLogs.length})`, icon: Activity },
-              { id: 'firmware-integrity', label: `Firmware Integrity Log (${firmwareLogs.length})`, icon: ShieldCheck },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -3192,9 +3532,15 @@ export const HardwareSecurityModule: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 6: Firmware Integrity Log */}
+        {/* TAB 6: Firmware Integrity Log & Public Transparency Verification */}
         {activeTab === 'firmware-integrity' && (
           <div className="space-y-6 animate-fadeIn">
+            {/* Remote Public Registry Verification Engine */}
+            <HsmFirmwareIntegritySection
+              device={selectedDevice}
+              onShowToast={showToast}
+            />
+
             <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
               
               {/* Header & Verification Metric Badges */}
@@ -3205,7 +3551,7 @@ export const HardwareSecurityModule: React.FC = () => {
                       <ShieldCheck className="w-5 h-5 animate-pulse" />
                     </div>
                     <h4 className="font-bold text-lg sm:text-xl text-white font-sans">
-                      FIPS 140-3 Firmware Integrity & Checksum Log
+                      Historic Firmware Integrity Event Ledger
                     </h4>
                     <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 font-bold uppercase">
                       SECURE BOOT IMMUTABLE
@@ -3448,6 +3794,42 @@ export const HardwareSecurityModule: React.FC = () => {
           </div>
         )}
 
+        {/* TAB: Security Baseline Manager (JSON & Drift Tracking) */}
+        {activeTab === 'security-baseline' && (
+          <HsmSecurityBaselineManager
+            device={selectedDevice}
+            onShowToast={showToast}
+          />
+        )}
+
+        {/* TAB: Security Hardening Assistant (FIPS 140-3 Interactive Checklist) */}
+        {activeTab === 'hardening-assistant' && (
+          <HsmSecurityHardeningAssistant
+            device={selectedDevice}
+            onShowToast={showToast}
+          />
+        )}
+
+        {/* TAB: Daily API Call Volume Visualizer (Recharts) */}
+        {activeTab === 'api-volume' && (
+          <HsmApiVolumeVisualizer
+            device={selectedDevice}
+            onShowToast={showToast}
+          />
+        )}
+
+        {/* TAB: Thermal Monitoring & Panic Scram Interlock */}
+        {activeTab === 'thermal-monitor' && (
+          <HsmThermalMonitor
+            device={selectedDevice}
+            onShowToast={showToast}
+            onVolatileShred={() => {
+              setIsVolatileShredded(true);
+              setEphemeralVolatileSlots(prev => prev.map(s => ({ ...s, isShredded: true, dataHex: '000000000000000000000000' })));
+            }}
+          />
+        )}
+
         {/* TAB 8: Real-Time Latency Monitor (RTT) */}
         {activeTab === 'latency-monitor' && (
           <HsmLatencyMonitor 
@@ -3502,6 +3884,215 @@ export const HardwareSecurityModule: React.FC = () => {
         {/* TAB 14: NIST SP 800-22 Entropy & P-Value Distribution Analysis */}
         {activeTab === 'entropy-analysis' && (
           <HsmEntropyAnalysisTab />
+        )}
+
+        {/* TAB: Quantum Adversary Simulator (HNDL & Real-World News) */}
+        {activeTab === 'adversary-simulator' && (
+          <QuantumAdversarySimulator />
+        )}
+
+        {/* TAB: HSM Selection Guide & FIPS 140-3 Architectures */}
+        {activeTab === 'hsm-selection-guide' && (
+          <HsmSelectionGuide />
+        )}
+
+        {/* TAB 15: Security Self-Test Suite & HSM Implementation Guide */}
+        {activeTab === 'self-test-suite' && (
+          <HsmSecuritySelfTestSuite selectedDevice={selectedDevice} />
+        )}
+
+        {/* SESSION INACTIVITY RE-AUTHENTICATION LOCK MODAL */}
+        <HsmInactivityLockModal
+          isOpen={isEnclaveLocked}
+          onUnlock={() => {
+            setIsEnclaveLocked(false);
+            setSecondsRemainingBeforeLock(inactivityTimeoutMinutes * 60);
+          }}
+          inactivityDurationMinutes={inactivityTimeoutMinutes}
+        />
+
+        {/* EMERGENCY POWER-OFF PROTECTION & EPHEMERAL SHRED MODAL */}
+        {isPowerShredModalOpen && (
+          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 sm:p-8 max-w-3xl w-full shadow-2xl shadow-cyan-950/80 space-y-6 animate-scaleUp max-h-[90vh] overflow-y-auto">
+              
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-300">
+                    <Power className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg text-white font-sans flex items-center space-x-2">
+                      <span>Emergency Power-Off Protection Studio</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                        isEmergencyPowerOffArmed ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {isEmergencyPowerOffArmed ? 'ARMED' : 'DISARMED'}
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-400 font-mono">
+                      Sub-millisecond volatile SRAM key shredding on low battery (&lt;5%) or forced power loss
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setIsPowerShredModalOpen(false)}
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Interactive Battery State & Arming Control */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-4 font-mono">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center space-x-2">
+                    <Battery className={`w-5 h-5 ${simulatedBatteryLevel <= 5 ? 'text-red-400 animate-pulse' : 'text-emerald-400'}`} />
+                    <span className="text-xs text-slate-300 font-bold">Simulated Device Battery State:</span>
+                    <span className={`text-sm font-black ${simulatedBatteryLevel <= 5 ? 'text-red-400' : 'text-cyan-300'}`}>
+                      {simulatedBatteryLevel}%
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-2 text-xs">
+                    <span className="text-slate-400">Protection Circuit:</span>
+                    <button
+                      onClick={() => setIsEmergencyPowerOffArmed(prev => !prev)}
+                      className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                        isEmergencyPowerOffArmed
+                          ? 'bg-cyan-600 text-slate-950 shadow-md shadow-cyan-950'
+                          : 'bg-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {isEmergencyPowerOffArmed ? 'Armed (Auto Shred)' : 'Disarmed'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Range Slider */}
+                <div className="space-y-1">
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={simulatedBatteryLevel}
+                    onChange={(e) => {
+                      const newLevel = parseInt(e.target.value, 10);
+                      setSimulatedBatteryLevel(newLevel);
+                      if (newLevel <= 5 && isEmergencyPowerOffArmed && !isVolatileShredded && !isExecutingPowerShred) {
+                        handleTriggerEmergencyPowerCut(newLevel);
+                      }
+                    }}
+                    className="w-full accent-cyan-400 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                    <span className="text-red-400 font-bold">0% (Shutdown Cutoff)</span>
+                    <span className="text-amber-400">5% (Shred Threshold)</span>
+                    <span className="text-slate-400">50%</span>
+                    <span className="text-emerald-400 font-bold">100% (Nominal)</span>
+                  </div>
+                </div>
+
+                {/* Trigger Buttons */}
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-900">
+                  <button
+                    onClick={() => handleTriggerEmergencyPowerCut(0)}
+                    disabled={isExecutingPowerShred || isVolatileShredded}
+                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 disabled:opacity-50 text-white font-bold text-xs flex items-center space-x-1.5 cursor-pointer shadow-md shadow-red-950"
+                  >
+                    <Power className="w-3.5 h-3.5" />
+                    <span>{isExecutingPowerShred ? 'Shredding in Progress...' : 'Trigger Forced Power Cutoff (0%)'}</span>
+                  </button>
+
+                  <button
+                    onClick={handleRestoreEphemeralVolatileKeys}
+                    disabled={!isVolatileShredded}
+                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-cyan-300 border border-slate-700 font-bold text-xs flex items-center space-x-1.5 cursor-pointer"
+                  >
+                    <RotateCw className="w-3.5 h-3.5" />
+                    <span>Re-Initialize Ephemeral Ratchet Keys</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Ephemeral Volatile SRAM Memory Slots Table */}
+              <div className="space-y-2 font-mono">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-300 font-bold flex items-center space-x-1.5">
+                    <HardDrive className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Ephemeral Volatile SRAM Key Allocations:</span>
+                  </span>
+                  <span className={`text-[11px] font-bold ${
+                    isVolatileShredded ? 'text-red-400' : 'text-emerald-400'
+                  }`}>
+                    {isVolatileShredded ? 'STATUS: ALL VOLATILE KEYS SHREDDED' : 'STATUS: LIVE ACTIVE IN MEMORY'}
+                  </span>
+                </div>
+
+                <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/80">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-900 text-slate-400 border-b border-slate-800 text-[10px] uppercase">
+                      <tr>
+                        <th className="p-2.5">SRAM Address</th>
+                        <th className="p-2.5">Key Allocation</th>
+                        <th className="p-2.5">Memory Type</th>
+                        <th className="p-2.5">Data Pattern</th>
+                        <th className="p-2.5 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 text-[11px]">
+                      {ephemeralVolatileSlots.map((slot) => (
+                        <tr key={slot.address} className="hover:bg-slate-900/40">
+                          <td className="p-2.5 text-cyan-300 font-bold">{slot.address}</td>
+                          <td className="p-2.5 text-slate-200">{slot.name}</td>
+                          <td className="p-2.5 text-slate-400">{slot.lifetime}</td>
+                          <td className="p-2.5">
+                            <span className={slot.isShredded ? 'text-red-400 font-bold' : 'text-slate-300'}>
+                              {slot.dataHex}
+                            </span>
+                          </td>
+                          <td className="p-2.5 text-right">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                              slot.isShredded
+                                ? 'bg-red-950 text-red-300 border border-red-800'
+                                : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                            }`}>
+                              {slot.isShredded ? 'PURGED (0x00)' : 'SECURE LIVE'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Hardware Discharge Telemetry Logs */}
+              <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5 font-mono">
+                <div className="text-[10px] text-slate-400 uppercase font-bold flex items-center justify-between">
+                  <span>Hardware Discharge & Zeroization Trace (Crowbar Circuit)</span>
+                  <span className="text-cyan-400">Response Speed: 1.18ms</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                  {emergencyShredLogs.map((log, idx) => (
+                    <div key={idx} className={log.includes('CRITICAL') ? 'text-amber-400 font-bold' : log.includes('PURGED') ? 'text-red-400' : 'text-slate-300'}>
+                      {log}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Security Assurance Notice */}
+              <div className="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-slate-300 text-xs flex items-start space-x-2.5 font-sans">
+                <ShieldCheck className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+                <div className="text-[11px] leading-relaxed">
+                  <strong className="text-cyan-300">FIPS 140-3 Non-Volatile Isolation:</strong> While ephemeral ratchet keys in volatile SRAM are immediately purged to prevent cold-boot memory extraction attacks, your long-term device Root Keys (<strong className="text-white">ML-DSA-87</strong>) remain securely sealed inside the hardware tamper flash and require authorized biometric/PIN quorum to awaken.
+                </div>
+              </div>
+
+            </div>
+          </div>
         )}
 
         {/* Security Stress Test Modal */}

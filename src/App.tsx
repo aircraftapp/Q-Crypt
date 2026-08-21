@@ -25,6 +25,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { GoldenRetrieverProvider } from './context/GoldenRetrieverContext';
 import { WhitepaperModal } from './components/WhitepaperModal';
 import { CrmAdminPortal } from './components/CrmAdminPortal';
+import { ExecutiveOverviewModal } from './components/ExecutiveOverviewModal';
 import { RealtimeTransparencyDashboard } from './components/RealtimeTransparencyDashboard';
 import { PublicVerificationPortal } from './components/PublicVerificationPortal';
 import { RealTimeTransparencyLedger } from './components/RealTimeTransparencyLedger';
@@ -40,6 +41,7 @@ import { HsmHardwareAttestation } from './components/HsmHardwareAttestation';
 import { LatticeVsClassicalSection } from './components/LatticeVsClassicalSection';
 import { CompetitiveSecurityMatrix } from './components/CompetitiveSecurityMatrix';
 import { QuantumThreatModeling } from './components/QuantumThreatModeling';
+import { PolygonDecentralizedIdentity } from './components/PolygonDecentralizedIdentity';
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 35, scale: 0.98 },
@@ -54,6 +56,7 @@ const sectionVariants = {
 export default function App() {
   const [isWhitepaperOpen, setIsWhitepaperOpen] = useState(false);
   const [isCrmAdminOpen, setIsCrmAdminOpen] = useState(false);
+  const [isExecutiveOpen, setIsExecutiveOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -65,9 +68,13 @@ export default function App() {
       } else if (isCmdOrCtrl && (e.key === 'w' || e.key === 'W')) {
         e.preventDefault();
         setIsWhitepaperOpen((prev) => !prev);
+      } else if (isCmdOrCtrl && (e.key === 'e' || e.key === 'E')) {
+        e.preventDefault();
+        setIsExecutiveOpen((prev) => !prev);
       } else if (e.key === 'Escape') {
         setIsWhitepaperOpen(false);
         setIsCrmAdminOpen(false);
+        setIsExecutiveOpen(false);
       }
     };
 
@@ -93,8 +100,9 @@ export default function App() {
               onNavigate={handleNavigate} 
               onOpenWhitepaper={() => setIsWhitepaperOpen(true)}
               onOpenCrmAdmin={() => setIsCrmAdminOpen(true)}
+              onOpenExecutiveOverview={() => setIsExecutiveOpen(true)}
             />
-            <main>
+            <main className="pt-24 sm:pt-28">
               <motion.div
                 initial="hidden"
                 whileInView="visible"
@@ -154,6 +162,16 @@ export default function App() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <PublicVerificationPortal />
                 </div>
+              </motion.div>
+
+              {/* Polygon (PoS) Anchored Decentralized Identity (DID) & Public Key Fingerprints */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                variants={sectionVariants}
+              >
+                <PolygonDecentralizedIdentity />
               </motion.div>
 
               {/* Real-Time Immutable Transparency Ledger (Encrypted Sessions & Handshakes) */}
@@ -431,6 +449,12 @@ export default function App() {
             <WhitepaperModal
               isOpen={isWhitepaperOpen}
               onClose={() => setIsWhitepaperOpen(false)}
+            />
+
+            {/* Strategic Executive Overview Modal */}
+            <ExecutiveOverviewModal
+              isOpen={isExecutiveOpen}
+              onClose={() => setIsExecutiveOpen(false)}
             />
 
             {/* Firestore CRM Admin Lead Portal */}

@@ -5,6 +5,7 @@ import {
   Layers, HelpCircle, Activity, BarChart3, Scale, Key
 } from 'lucide-react';
 import { useToast } from './Toast';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ComparisonRow {
   dimension: string;
@@ -37,6 +38,7 @@ interface ComparisonRow {
 
 export const LatticeVsClassicalSection: React.FC = () => {
   const { showToast } = useToast();
+  const { t } = useLanguage();
   const [filterCategory, setFilterCategory] = useState<'all' | 'quantum-resistance' | 'performance' | 'key-sizes'>('all');
   const [simulatedMessageVolume, setSimulatedMessageVolume] = useState<number>(10000);
   const [activeTab, setActiveTab] = useState<'matrix' | 'benchmark' | 'hndl-explainer'>('matrix');
@@ -254,13 +256,13 @@ export const LatticeVsClassicalSection: React.FC = () => {
           <div className="space-y-3 max-w-3xl">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 text-xs font-mono font-bold">
               <Scale className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
-              <span>NIST FIPS 203 & 204 LATTICE STANDARDS VS. LEGACY RSA/ECC</span>
+              <span>{t('latticeVsClassical.badge')}</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight font-sans">
-              Lattice Cryptography vs. Classical Messengers
+              {t('latticeVsClassical.title')}
             </h2>
             <p className="text-sm sm:text-base text-slate-400 font-mono leading-relaxed">
-              A comprehensive technical and performance comparison demonstrating why legacy RSA/ECC protocols (WhatsApp, Telegram, Signal, PGP) fail under Cryptanalytically Relevant Quantum Computers (CRQC).
+              {t('latticeVsClassical.subtitle')}
             </p>
           </div>
 

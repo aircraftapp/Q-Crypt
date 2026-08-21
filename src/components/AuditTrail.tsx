@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Award, Calendar, CheckCircle2, ExternalLink, FileText, ShieldCheck, Lock, Cpu, Layers, Copy, Check, ChevronRight, Printer, Download, Sparkles } from 'lucide-react';
 import { useToast } from './Toast';
+import { useLanguage } from '../context/LanguageContext';
 
 export interface AuditRecord {
   id: string;
@@ -19,6 +20,7 @@ export interface AuditRecord {
 
 export const AuditTrail: React.FC = () => {
   const { showToast } = useToast();
+  const { t } = useLanguage();
   const [selectedAudit, setSelectedAudit] = useState<AuditRecord | null>(null);
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
@@ -366,14 +368,14 @@ export const AuditTrail: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Public Technical Audit Trail (Last 10 Reports)</span>
+                  <span>{t('auditTrail.badge')}</span>
                 </span>
                 <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px] font-mono font-bold">
                   10/10 VERIFIED
                 </span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1">
-                Third-Party Cryptographic Security Verification Reports
+                {t('auditTrail.title')}
               </h2>
             </div>
           </div>
